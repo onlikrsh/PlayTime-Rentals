@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, memo } from 'react';
 import Hero from '../components/Hero';
 import BookingCalendar from '../components/BookingCalendar';
 import Configurator from '../components/Configurator';
@@ -9,6 +9,19 @@ import Socials from '../components/Socials';
 import { getBookedDates, saveBooking } from '../firebase/bookings';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
+
+// -----------------------------------------------------------------------------
+// PERFORMANCE OPTIMIZATION:
+// Wrapping these heavy structural components in React.memo prevents them 
+// from catastrophically re-rendering every time the user drags the duration slider!
+// -----------------------------------------------------------------------------
+const MemoizedPricingCards = memo(PricingCards);
+const MemoizedGameLibrary = memo(GameLibrary);
+const MemoizedSocials = memo(Socials);
+const MemoizedRentalAgreement = memo(RentalAgreement);
+// We also memoize Hero, but it takes an inline un-memoized prop function natively.
+// Since we pass a stable reference to it, it will perfectly freeze.
+const MemoizedHero = memo(Hero);
 
 export default function Home() {
   const [selectedDate, setSelectedDate] = useState(null);
@@ -32,7 +45,7 @@ export default function Home() {
   const handleConfirmBooking = async (config) => {
     if (!selectedDate) {
       alert("Please select a start date first.");
-      document.getElementById('booking-section').scrollIntoView({ behavior: 'smooth' });
+      document.getElementById('booking-section')?.scrollIntoView({ behavior: 'smooth' });
       return;
     }
 
@@ -84,7 +97,7 @@ export default function Home() {
         )}
       </AnimatePresence>
 
-      <Hero onStartJourney={handleStartJourney} />
+      <MemoizedHero onStartJourney={handleStartJourney} />
 
       <section id="booking-section" className="py-24 bg-background max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
@@ -93,7 +106,7 @@ export default function Home() {
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            className="h-full"
+            className="h-full w-full"
           >
             <BookingCalendar 
               selectedDate={selectedDate}
@@ -107,7 +120,7 @@ export default function Home() {
             initial={{ opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            className="h-full"
+            className="h-full w-full"
           >
             <Configurator 
               duration={duration}
@@ -120,10 +133,10 @@ export default function Home() {
         </div>
       </section>
 
-      <PricingCards />
-      <GameLibrary />
-      <Socials />
-      <RentalAgreement />
+      <MemoizedPricingCards />
+      <MemoizedGameLibrary />
+      <MemoizedSocials />
+      <MemoizedRentalAgreement />
 
     </div>
   );
