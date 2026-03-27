@@ -69,8 +69,8 @@ export default function Home() {
       `Is this available for delivery?`
     );
 
-    // IMPORTANT: Swap 1234567890 below with your actual business WhatsApp number!
-    const WHATSAPP_NUMBER = "1234567890"; 
+    // IMPORTANT: Swap below with your actual business WhatsApp number if it changes
+    const WHATSAPP_NUMBER = "+916281496238"; 
     
     // Simulate minor processing time to feel premium, then redirect
     setTimeout(() => {

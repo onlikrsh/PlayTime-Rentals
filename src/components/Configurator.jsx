@@ -143,8 +143,9 @@ export default function Configurator({ duration, setDuration, onConfirm, isBooki
           <button 
             onClick={() => {
               triggerHaptic(20);
+              const phoneNumber = "+916281496238"; 
               const message = encodeURIComponent(`Hi, I'd like to book a PS5 for ${duration} days. Total: ₹${totalPrice}.`);
-              window.open(`https://wa.me/1234567890?text=${message}`, '_blank');
+              window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
             }}
             className="flex-1 bg-[#25D366] hover:bg-[#20bd5a] text-white py-4 font-bold tracking-wider transition-colors uppercase flex items-center justify-center gap-2"
           >
