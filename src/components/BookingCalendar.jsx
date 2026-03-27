@@ -32,7 +32,7 @@ export default function BookingCalendar({ selectedDate, setSelectedDate, duratio
   // BookedDates array items should look like: { startDate: Date, duration: Number }
   const isDateBooked = (day) => {
     return bookedDates.some(booking => {
-      const end = addDays(booking.startDate, booking.duration - 1); // e.g. start 1st, dur 3 = 1st, 2nd, 3rd
+      const end = addDays(booking.startDate, booking.duration); 
       return (isSameDay(day, booking.startDate) || isAfter(day, booking.startDate)) && (isSameDay(day, end) || isBefore(day, end));
     });
   };
@@ -61,12 +61,12 @@ export default function BookingCalendar({ selectedDate, setSelectedDate, duratio
   // UI state for showing selected range
   const isDateInSelectedRange = (day) => {
     if (!selectedDate) return false;
-    const end = addDays(selectedDate, duration - 1);
+    const end = addDays(selectedDate, duration);
     return (isSameDay(day, selectedDate) || isAfter(day, selectedDate)) && (isSameDay(day, end) || isBefore(day, end));
   };
   
   const isRangeStart = (day) => selectedDate && isSameDay(day, selectedDate);
-  const isRangeEnd = (day) => selectedDate && isSameDay(day, addDays(selectedDate, duration - 1));
+  const isRangeEnd = (day) => selectedDate && isSameDay(day, addDays(selectedDate, duration));
 
   const weekDays = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
 
@@ -133,7 +133,12 @@ export default function BookingCalendar({ selectedDate, setSelectedDate, duratio
         <p className="text-[10px] uppercase tracking-widest text-muted font-bold mb-2">SELECTED PERIOD</p>
         <p className="text-sm font-medium">
           {selectedDate ? (
-            `${format(selectedDate, 'MMM dd, yyyy')} - ${format(addDays(selectedDate, duration - 1), 'MMM dd, yyyy')} (${duration} Days)`
+            <span className="flex flex-col gap-1 mt-1">
+              <span>{format(selectedDate, 'MMM dd, yyyy')} (12:00 PM)</span>
+              <span className="text-muted text-xs mx-1">UNTIL</span>
+              <span>{format(addDays(selectedDate, duration), 'MMM dd, yyyy')} (12:00 PM)</span>
+              <span className="text-accent mt-1 tracking-widest text-[10px] font-bold">({duration} DAY{duration > 1 ? 'S' : ''})</span>
+            </span>
           ) : (
             <span className="text-muted/50">Select a start date...</span>
           )}
