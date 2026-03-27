@@ -4,9 +4,9 @@ import { motion } from 'framer-motion';
 export default function Hero({ onStartJourney }) {
   return (
     <section className="relative pt-24 pb-16 md:pt-32 md:pb-24 overflow-hidden">
-      {/* Background accents */}
-      <div className="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 bg-accent/10 rounded-full blur-3xl" />
-      <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-accent/5 rounded-full blur-3xl" />
+      {/* Background accents optimized for mobile GPU */}
+      <div className="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-accent/20 to-transparent rounded-full" />
+      <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-accent/10 to-transparent rounded-full" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
@@ -69,7 +69,7 @@ export default function Hero({ onStartJourney }) {
                 repeat: Infinity,
                 ease: "easeInOut"
               }}
-              className="relative w-full z-10 flex justify-center h-full items-center scale-110 md:scale-125"
+              className="relative w-full z-10 flex justify-center h-full items-center scale-110 md:scale-125 will-change-transform"
             >
               <img 
                 src="/ps5-hero.png" 
@@ -78,8 +78,8 @@ export default function Hero({ onStartJourney }) {
               />
             </motion.div>
             
-            {/* Premium backdrop glow highlighting the console */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] bg-accent/5 dark:bg-accent/20 blur-[120px] rounded-full -z-10 pointer-events-none" />
+            {/* Premium backdrop glow optimized for mobile graphics (Zero pixel blur calculations) */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-accent/10 dark:from-accent/20 to-transparent rounded-full -z-10 pointer-events-none" />
           </motion.div>
 
         </div>

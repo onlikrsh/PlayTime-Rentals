@@ -31,7 +31,7 @@ function App() {
       <div className="relative min-h-screen flex flex-col bg-background text-foreground font-sans selection:bg-accent selection:text-white">
         
         {/* Header */}
-        <header className="fixed top-0 left-0 right-0 z-40 bg-background/80 backdrop-blur-md border-b border-border transition-colors duration-300">
+        <header className="fixed top-0 left-0 right-0 z-40 bg-background/95 border-b border-border transition-colors duration-300">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-20">
               {/* Logo */}
@@ -75,7 +75,7 @@ function App() {
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="fixed inset-0 z-30 bg-background/95 backdrop-blur-xl pt-28 px-6 flex flex-col"
+              className="fixed inset-0 z-30 bg-background pt-28 px-6 flex flex-col transition-colors"
             >
               <nav className="flex flex-col gap-8 text-2xl font-bold uppercase tracking-widest">
                 <a href="/#booking-section" onClick={closeMobileMenu} className="hover:text-accent transition-colors border-b border-border/50 pb-4">
