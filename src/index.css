@@ -1,0 +1,37 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg-primary: 248 250 252; /* slate 50 */
+    --bg-secondary: 255 255 255; /* white */
+    --text-primary: 15 23 42; /* slate 900 */
+    --text-secondary: 71 85 105; /* slate 600 */
+    --accent: 29 78 216; /* blue 700 */
+    --accent-hover: 30 64 175; /* blue 800 */
+    --border: 226 232 240; /* slate 200 */
+  }
+
+  .dark {
+    --bg-primary: 10 17 40; /* Very dark blue matching design */
+    --bg-secondary: 17 28 58; /* Card bg */
+    --text-primary: 255 255 255;
+    --text-secondary: 148 163 184; /* slate 400 */
+    --accent: 29 78 216; /* blue 700 */
+    --accent-hover: 37 99 235; /* blue 600 */
+    --border: 30 41 89; /* slate 800ish */
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased transition-colors duration-300;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-card/80 backdrop-blur-md border border-border;
+  }
+}
