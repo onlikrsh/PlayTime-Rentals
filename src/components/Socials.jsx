@@ -24,7 +24,7 @@ const TelegramIcon = () => (
 export default function Socials() {
   // To add X or Telegram, simply uncomment the lines below and update the urls.
   const socials = [
-    { name: 'Instagram', icon: <InstagramIcon />, url: '#', color: 'hover:text-pink-500' },
+    { name: 'Instagram', icon: <InstagramIcon />, url: 'https://www.instagram.com/playtime.rentals/', color: 'hover:text-pink-500' },
     // { name: 'X / Twitter', icon: <TwitterIcon />, url: '#', color: 'hover:text-blue-400' },
     // { name: 'Telegram', icon: <TelegramIcon />, url: '#', color: 'hover:text-blue-500' }
   ];
