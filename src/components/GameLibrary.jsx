@@ -5,8 +5,8 @@ export default function GameLibrary() {
   const games = [
     { id: 1, title: 'GRAND THEFT AUTO V', genre: 'ACTION / OPEN WORLD', img: 'https://steamcdn-a.akamaihd.net/steam/apps/271590/library_600x900_2x.jpg' },
     { id: 2, title: 'GOD OF WAR RAGNAROK', genre: 'ACTION RPG', img: 'https://steamcdn-a.akamaihd.net/steam/apps/2322010/library_600x900_2x.jpg' },
-    { id: 3, title: 'EA SPORTS FC 24', genre: 'SPORTS', img: 'https://steamcdn-a.akamaihd.net/steam/apps/2195250/library_600x900_2x.jpg' },
-    { id: 4, title: 'EA SPORTS F1 24', genre: 'RACING / SPORTS', img: 'https://image.api.playstation.com/vulcan/ap/rnd/202404/0814/6337d7fda029c89f7d02de0825db21fdd8ab46d36cbcc82c.png?w=600' },
+    { id: 3, title: 'EA SPORTS FC 25', genre: 'SPORTS', img: 'https://steamcdn-a.akamaihd.net/steam/apps/2669320/library_600x900_2x.jpg' },
+    { id: 4, title: 'EA SPORTS F1 25', genre: 'RACING / SPORTS', img: '/f1-25.jpg' },
     { id: 5, title: 'MARVEL\'S SPIDER-MAN 2', genre: 'ACTION / ADVENTURE', img: 'https://image.api.playstation.com/vulcan/ap/rnd/202306/1219/1c7b75d8ed9271516546560d219ad0b22ee0a263b4537bd8.png?w=600' },
     { id: 6, title: 'GHOST OF TSUSHIMA', genre: 'HACK & SLASH', img: 'https://image.api.playstation.com/vulcan/ap/rnd/202106/2322/c16gs6a7lbAYzPf7ZTikbH1c.png?w=600' },
     { id: 7, title: 'ASSASSIN\'S CREED VALHALLA', genre: 'ACTION RPG', img: 'https://image.api.playstation.com/vulcan/ap/rnd/202007/0208/Ud7Ikvjoyev61bx3n1PTC9u8.png?w=600' },
@@ -44,7 +44,7 @@ export default function GameLibrary() {
                   </span>
                 )}
               </div>
-              <h3 className="text-sm font-bold tracking-wider leading-tight mb-1 line-clamp-2 min-h-[2.5rem]">{game.title}</h3>
+              <h3 className="text-sm font-bold tracking-wider leading-tight mb-1 line-clamp-2">{game.title}</h3>
               <p className="text-[10px] text-muted tracking-widest uppercase truncate">{game.genre}</p>
             </motion.div>
           ))}
