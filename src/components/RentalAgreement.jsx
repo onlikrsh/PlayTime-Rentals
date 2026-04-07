@@ -91,6 +91,17 @@ export default function RentalAgreement() {
         "Support is available via WhatsApp for: setup help, troubleshooting, extension requests.",
         "We aim to provide smooth and hassle-free gaming experience across Vizag."
       ]
+    },
+    {
+      id: "09",
+      title: "ADD-ON: EXTRA CONTROLLER",
+      content: [
+        "Adding an extra dual-sense controller is dynamically priced based on rental duration.",
+        "1 to 2 Days: ₹150 per day.",
+        "3 to 6 Days: ₹100 per day.",
+        "7 to 14 Days: ₹50 per day.",
+        "15+ Days: ₹25 per day."
+      ]
     }
   ];
 

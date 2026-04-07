@@ -7,6 +7,16 @@ export default function Configurator({ duration, setDuration, onConfirm, isBooki
   const [smsNotifications, setSmsNotifications] = useState(false);
   const [totalPrice, setTotalPrice] = useState(0);
 
+  // Compute current extra controller price cleanly
+  let currentExtraCtrlPrice = pricing.extraController.basePricePerDay;
+  const applicableExtraDiscount = pricing.extraController.discounts
+    .slice()
+    .sort((a, b) => b.minDays - a.minDays)
+    .find(d => duration >= d.minDays);
+  if (applicableExtraDiscount) {
+    currentExtraCtrlPrice = applicableExtraDiscount.pricePerDay;
+  }
+
   // Vibrate helper
   const triggerHaptic = (ms = 5) => {
     if (navigator.vibrate) navigator.vibrate(ms);
@@ -31,11 +41,11 @@ export default function Configurator({ duration, setDuration, onConfirm, isBooki
     let calculatedTotal = pricePerDay * duration;
     
     if (extraController) {
-      calculatedTotal += pricing.extraControllerPricePerDay * duration;
+      calculatedTotal += currentExtraCtrlPrice * duration;
     }
 
     setTotalPrice(calculatedTotal);
-  }, [duration, extraController]);
+  }, [duration, extraController, currentExtraCtrlPrice]);
 
   return (
     <div className="glass p-8 border border-border h-full flex flex-col">
@@ -96,7 +106,10 @@ export default function Configurator({ duration, setDuration, onConfirm, isBooki
               <Settings className="w-5 h-5 text-muted" />
               <div>
                 <p className="text-sm font-bold tracking-wide uppercase">EXTRA CONTROLLER</p>
-                <p className="text-[10px] text-muted uppercase">+₹{pricing.extraControllerPricePerDay}/day</p>
+                <div className="flex flex-col">
+                  <span className="text-[10px] text-muted uppercase">+₹{currentExtraCtrlPrice}/day</span>
+                  <span className="text-[8px] text-accent font-bold uppercase tracking-widest mt-0.5">Price drops based on days</span>
+                </div>
               </div>
             </div>
             <button 
