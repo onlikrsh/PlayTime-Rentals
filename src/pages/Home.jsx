@@ -64,8 +64,8 @@ export default function Home() {
     const message = encodeURIComponent(
       `Hi PlayTime Rentals,\nI'd like to book a PS5 console!\n\n` +
       `📅 *Duration:* ${config.duration} Day${config.duration > 1 ? 's' : ''}\n` +
-      `⏳ *From:* ${startDateFormatted} at 12:00 PM\n` +
-      `⏳ *To:* ${endDateFormatted} at 12:00 PM\n` +
+      `⏳ *From:* ${startDateFormatted} at 10:00 AM\n` +
+      `⏳ *To:* ${endDateFormatted} at 10:00 AM\n` +
       `🎮 *Add-ons:* ${addons.length > 0 ? addons.join(', ') : 'None'}\n` +
       `💰 *Grand Total:* ₹${config.totalPrice.toLocaleString('en-IN')}\n\n` +
       `Is this available for delivery?`

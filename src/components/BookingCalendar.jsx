@@ -134,9 +134,9 @@ export default function BookingCalendar({ selectedDate, setSelectedDate, duratio
         <p className="text-sm font-medium">
           {selectedDate ? (
             <span className="flex flex-col gap-1 mt-1">
-              <span>{format(selectedDate, 'MMM dd, yyyy')} (12:00 PM)</span>
+              <span>{format(selectedDate, 'MMM dd, yyyy')} (10:00 AM)</span>
               <span className="text-muted text-xs mx-1">UNTIL</span>
-              <span>{format(addDays(selectedDate, duration), 'MMM dd, yyyy')} (12:00 PM)</span>
+              <span>{format(addDays(selectedDate, duration), 'MMM dd, yyyy')} (10:00 AM)</span>
               <span className="text-accent mt-1 tracking-widest text-[10px] font-bold">({duration} DAY{duration > 1 ? 'S' : ''})</span>
             </span>
           ) : (

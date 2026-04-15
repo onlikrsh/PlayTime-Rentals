@@ -87,7 +87,7 @@ export default function RentalAgreement() {
       id: "08",
       title: "PICKUP & SUPPORT",
       content: [
-        "Pickup is scheduled between 10 AM – 12 PM maximum on end date.",
+        "Pickup is scheduled between 10 AM – 12 PM on end date.",
         "Customer must ensure device is ready for pickup.",
         "Support is available via WhatsApp for: setup help, troubleshooting, extension requests.",
         "We aim to provide smooth and hassle-free gaming experience across Vizag."
