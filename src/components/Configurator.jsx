@@ -65,7 +65,7 @@ export default function Configurator({ duration, setDuration, onConfirm, isBooki
           <input 
             type="range" 
             min="1" 
-            max="15" 
+            max="7" 
             value={duration} 
             onChange={(e) => {
                setDuration(parseInt(e.target.value));
@@ -75,8 +75,8 @@ export default function Configurator({ duration, setDuration, onConfirm, isBooki
           />
           <div className="flex justify-between text-[10px] font-medium text-muted tracking-widest">
             <span>1 DAY</span>
+            <span>4 DAYS</span>
             <span>7 DAYS</span>
-            <span>15 DAYS</span>
           </div>
         </div>
 
