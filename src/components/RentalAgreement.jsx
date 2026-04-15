@@ -18,7 +18,7 @@ export default function RentalAgreement() {
         "Booking is confirmed only after customer signs the digital rental agreement and completes payment at the time of delivery.",
         "Payment is collected after device delivery and setup. Rental period begins once the console is successfully installed and demonstrated working.",
         "Prices may vary during weekends, holidays and high demand periods.",
-        "Rental duration for 1-day booking is calculated from 12:00 PM to next day 12:00 PM."
+        "Rental duration for 1-day booking is calculated from 10:00 AM to next day 10:00 AM."
       ]
     },
     {
@@ -28,6 +28,7 @@ export default function RentalAgreement() {
         "We provide home delivery and professional setup across Vizag (Visakhapatnam).",
         "Delivery includes: PS5 console, Controller, HDMI cable, Power cable, Pre-installed games (PS Plus Deluxe & EA Play).",
         "Customer must ensure: Working TV or monitor with HDMI port, Stable power supply, Safe indoor placement space.",
+        "Minimum 30Mbps internet speed is required to download games.",
         "Our team will setup the device and confirm proper working before leaving."
       ]
     },
@@ -69,7 +70,7 @@ export default function RentalAgreement() {
         "Same day cancellation may incur delivery charge.",
         "No refund once rental period has started.",
         "Refunds (if applicable) are processed within 3–5 working days.",
-        "Date modifications are allowed based on availability."
+        "Date modifications are allowed based on availability only before delivery."
       ]
     },
     {
@@ -86,7 +87,7 @@ export default function RentalAgreement() {
       id: "08",
       title: "PICKUP & SUPPORT",
       content: [
-        "Pickup is scheduled between 10 AM – 7 PM on end date.",
+        "Pickup is scheduled between 10 AM – 12 PM maximum on end date.",
         "Customer must ensure device is ready for pickup.",
         "Support is available via WhatsApp for: setup help, troubleshooting, extension requests.",
         "We aim to provide smooth and hassle-free gaming experience across Vizag."
