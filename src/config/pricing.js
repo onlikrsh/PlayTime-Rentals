@@ -2,7 +2,7 @@ export const pricing = {
   basePricePerDay: 1000,
   discounts: [
     { minDays: 3, pricePerDay: 800 },
-    { minDays: 7, pricePerDay: 700 },
+    { minDays: 7, pricePerDay: 750 },
   ],
   extraController: {
     basePricePerDay: 150,
