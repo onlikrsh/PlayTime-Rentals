@@ -1,54 +1,22 @@
-import { useState, useEffect } from 'react';
-import { pricing } from '../config/pricing';
-import { MessageCircle, Settings, Send } from 'lucide-react';
+import { useState } from 'react';
+import { quote } from '../lib/booking';
+import { whatsappLink } from '../config/site';
+import { MessageCircle, Settings } from 'lucide-react';
 
-export default function Configurator({ duration, setDuration, onConfirm, isBooking }) {
+export default function Configurator({ duration, setDuration, pricing, onConfirm }) {
   const [extraController, setExtraController] = useState(false);
   const [smsNotifications, setSmsNotifications] = useState(false);
-  const [totalPrice, setTotalPrice] = useState(0);
 
-  // Compute current extra controller price cleanly
-  let currentExtraCtrlPrice = pricing.extraController.basePricePerDay;
-  const applicableExtraDiscount = pricing.extraController.discounts
-    .slice()
-    .sort((a, b) => b.minDays - a.minDays)
-    .find(d => duration >= d.minDays);
-  if (applicableExtraDiscount) {
-    currentExtraCtrlPrice = applicableExtraDiscount.pricePerDay;
-  }
+  // Volume discounts for the console and the extra controller come from `pricing`
+  const { controllerPerDay: currentExtraCtrlPrice, total: totalPrice } = quote(pricing, duration, extraController);
 
   // Vibrate helper
   const triggerHaptic = (ms = 5) => {
     if (navigator.vibrate) navigator.vibrate(ms);
   }
 
-  // Calculate pricing whenever config changes
-  useEffect(() => {
-    let pricePerDay = pricing.basePricePerDay;
-    
-    // Check volume discounts
-    // Assuming discounts are ordered descending in minDays theoretically, but we evaluate based on thresholds
-    // E.g., >= 15 days, >= 7 days
-    const applicableDiscount = pricing.discounts
-      .slice()
-      .sort((a, b) => b.minDays - a.minDays)
-      .find(d => duration >= d.minDays);
-
-    if (applicableDiscount) {
-      pricePerDay = applicableDiscount.pricePerDay;
-    }
-
-    let calculatedTotal = pricePerDay * duration;
-    
-    if (extraController) {
-      calculatedTotal += currentExtraCtrlPrice * duration;
-    }
-
-    setTotalPrice(calculatedTotal);
-  }, [duration, extraController, currentExtraCtrlPrice]);
-
   return (
-    <div className="glass p-8 border border-border h-full flex flex-col">
+    <div id="accessories" className="glass p-8 border border-border h-full flex flex-col scroll-mt-24">
       <div className="mb-8">
          <p className="text-[10px] font-bold text-muted tracking-widest uppercase mb-2">STEP 02</p>
          <h2 className="text-2xl font-bold tracking-tight uppercase">Configurator</h2>
@@ -65,7 +33,7 @@ export default function Configurator({ duration, setDuration, onConfirm, isBooki
           <input 
             type="range" 
             min="1" 
-            max="7" 
+            max={pricing.maxDays} 
             value={duration} 
             onChange={(e) => {
                setDuration(parseInt(e.target.value));
@@ -75,8 +43,8 @@ export default function Configurator({ duration, setDuration, onConfirm, isBooki
           />
           <div className="flex justify-between text-[10px] font-medium text-muted tracking-widest">
             <span>1 DAY</span>
-            <span>4 DAYS</span>
-            <span>7 DAYS</span>
+            <span>{Math.ceil((1 + pricing.maxDays) / 2)} DAYS</span>
+            <span>{pricing.maxDays} DAYS</span>
           </div>
         </div>
 
@@ -143,22 +111,15 @@ export default function Configurator({ duration, setDuration, onConfirm, isBooki
                 totalPrice
               });
             }}
-            disabled={isBooking}
             className="flex-1 bg-accent hover:bg-accent-hover text-white py-4 font-bold tracking-wider transition-colors uppercase disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
-            {isBooking ? (
-              <span className="animate-pulse">PROCESSING...</span>
-            ) : (
-              <>CONFIRM BOOKING</>
-            )}
+            CONFIRM BOOKING
           </button>
           
           <button 
             onClick={() => {
               triggerHaptic(20);
-              const phoneNumber = "+916281496238"; 
-              const message = encodeURIComponent(`Hi, I'd like to book a PS5 for ${duration} days. Total: ₹${totalPrice}.`);
-              window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
+              window.open(whatsappLink(`Hi, I'd like to book a PS5 for ${duration} days. Total: ₹${totalPrice}.`), '_blank');
             }}
             className="flex-1 bg-[#25D366] hover:bg-[#20bd5a] text-white py-4 font-bold tracking-wider transition-colors uppercase flex items-center justify-center gap-2"
           >

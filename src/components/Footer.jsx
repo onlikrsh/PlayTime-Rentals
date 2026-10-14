@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { whatsappLink } from '../config/site';
 
 export default function Footer() {
   return (
@@ -38,14 +39,14 @@ export default function Footer() {
               <Link to="/terms-and-conditions" className="text-sm text-muted hover:text-accent transition-colors">Terms & Conditions</Link>
               <Link to="/privacy-policy" className="text-sm text-muted hover:text-accent transition-colors">Privacy Policy</Link>
               <Link to="/cancellation-policy" className="text-sm text-muted hover:text-accent transition-colors">Cancellation Policy</Link>
-              <a href="/#contact" className="text-sm text-muted hover:text-accent transition-colors">Contact</a>
+              <a href={whatsappLink("Hi PlayTime Rentals, I have a question.")} target="_blank" rel="noopener noreferrer" className="text-sm text-muted hover:text-accent transition-colors">Contact</a>
             </div>
 
             {/* Company */}
             <div className="flex flex-col gap-4">
               <h4 className="text-xs font-bold tracking-widest uppercase text-muted/70 mb-2">Company</h4>
               <Link to="/about" className="text-sm text-muted hover:text-accent transition-colors">About</Link>
-              <a href="/#how-it-works" className="text-sm text-muted hover:text-accent transition-colors">How it Works</a>
+              <a href="/#rental-agreement" className="text-sm text-muted hover:text-accent transition-colors">How it Works</a>
               <Link to="/delivery-policy" className="text-sm text-muted hover:text-accent transition-colors">Delivery Areas in Vizag</Link>
             </div>
 

@@ -1,22 +1,22 @@
 import { useState, useEffect } from 'react';
 import { Moon, Sun } from 'lucide-react';
 
+// Check initial preference
+const getInitialDark = () => {
+  try {
+    const storedTheme = localStorage.getItem('theme');
+    return storedTheme ? storedTheme === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+  } catch {
+    return false;
+  }
+};
+
 export default function ThemeToggle() {
-  const [isDark, setIsDark] = useState(false);
+  const [isDark, setIsDark] = useState(getInitialDark);
 
   useEffect(() => {
-    // Check initial preference
-    const storedTheme = localStorage.getItem('theme');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    
-    if (storedTheme === 'dark' || (!storedTheme && prefersDark)) {
-      setIsDark(true);
-      document.documentElement.classList.add('dark');
-    } else {
-      setIsDark(false);
-      document.documentElement.classList.remove('dark');
-    }
-  }, []);
+    document.documentElement.classList.toggle('dark', isDark);
+  }, [isDark]);
 
   const toggleTheme = () => {
     // Haptic feedback (5ms as specified)
@@ -24,15 +24,12 @@ export default function ThemeToggle() {
       navigator.vibrate(5);
     }
 
-    if (isDark) {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-      setIsDark(false);
-    } else {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-      setIsDark(true);
+    try {
+      localStorage.setItem('theme', isDark ? 'light' : 'dark');
+    } catch {
+      // Storage blocked (private mode): the theme just won't be remembered.
     }
+    setIsDark(!isDark);
   };
 
   return (

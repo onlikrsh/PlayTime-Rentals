@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
+import { priceTable } from '../lib/booking';
 
-export default function RentalAgreement() {
+export default function RentalAgreement({ pricing }) {
   const [openId, setOpenId] = useState(null);
 
   const toggleOpen = (id) => {
@@ -98,9 +99,9 @@ export default function RentalAgreement() {
       title: "ADD-ON: EXTRA CONTROLLER",
       content: [
         "Adding an extra dual-sense controller is dynamically priced based on rental duration.",
-        "1 to 2 Days: ₹150 per day.",
-        "3 to 6 Days: ₹100 per day.",
-        "7+ Days: ₹50 per day."
+        ...priceTable(pricing.extraController.basePricePerDay, pricing.extraController.discounts, pricing.maxDays).map(row =>
+          `${row.from === row.to ? `${row.from} Day${row.from > 1 ? 's' : ''}` : `${row.from} to ${row.to} Days`}: ₹${row.pricePerDay} per day.`
+        )
       ]
     }
   ];

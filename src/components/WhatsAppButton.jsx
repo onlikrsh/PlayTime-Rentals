@@ -1,16 +1,13 @@
 import { MessageCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { whatsappLink } from '../config/site';
 
 export default function WhatsAppButton() {
-  // Replace with actual business WhatsApp number
-  const phoneNumber = "+916281496238"; 
-  const message = encodeURIComponent("Hi, I want to rent a PS5!");
-
   const handleClick = () => {
     if (navigator.vibrate) {
       navigator.vibrate(10);
     }
-    window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
+    window.open(whatsappLink("Hi, I want to rent a PS5!"), '_blank');
   };
 
   return (
