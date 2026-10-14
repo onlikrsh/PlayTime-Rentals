@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
-import { format, addMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, isBefore, isAfter, startOfToday, addDays } from 'date-fns';
+import { useState } from 'react';
+import { format, addMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isBefore, isAfter, startOfToday, addDays } from 'date-fns';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-export default function BookingCalendar({ selectedDate, setSelectedDate, duration, bookedDates }) {
+export default function BookingCalendar({ selectedDate, setSelectedDate, duration, blocks }) {
   const [currentMonth, setCurrentMonth] = useState(startOfMonth(new Date()));
   const today = startOfToday();
 
@@ -18,7 +18,7 @@ export default function BookingCalendar({ selectedDate, setSelectedDate, duratio
   
   const prevMonth = () => {
     // Prevent going past current real world month 
-    if (isBefore(currentMonth, startOfMonth(today))) return;
+    if (!isAfter(currentMonth, startOfMonth(today))) return;
     setCurrentMonth(addMonths(currentMonth, -1));
     triggerHaptic(5);
   };
@@ -28,18 +28,15 @@ export default function BookingCalendar({ selectedDate, setSelectedDate, duratio
     end: endOfMonth(currentMonth)
   });
 
-  // Calculate disabled dates based on firebase `bookedDates`
-  // BookedDates array items should look like: { startDate: Date, duration: Number }
+  // Disabled dates come from `blocks`: [{ start: 'yyyy-MM-dd', end: 'yyyy-MM-dd' }], both days included
   const isDateBooked = (day) => {
-    return bookedDates.some(booking => {
-      const end = addDays(booking.startDate, booking.duration); 
-      return (isSameDay(day, booking.startDate) || isAfter(day, booking.startDate)) && (isSameDay(day, end) || isBefore(day, end));
-    });
+    const iso = format(day, 'yyyy-MM-dd');
+    return blocks.some(block => block.start <= iso && iso <= block.end);
   };
 
-  // Check if a range starting on 'day' and lasting 'duration' overlaps with any booked dates
+  // Check if a range starting on 'day' (through the return day) overlaps with any booked dates
   const overlapsBooked = (day) => {
-    for (let i = 0; i < duration; i++) {
+    for (let i = 0; i <= duration; i++) {
        const checkDay = addDays(day, i);
        if (isDateBooked(checkDay)) return true;
     }

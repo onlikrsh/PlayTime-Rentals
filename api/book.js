@@ -1,0 +1,74 @@
+// ═══════════════════════════════════════════════════════════════════════
+//  /api/book: runs when a customer taps "REQUEST BOOKING" on the website.
+//
+//  Step 1. Read the customer's details from the form
+//  Step 2. Check the details make sense
+//  Step 3. Check the console is free on those dates
+//  Step 4. Work out the price (done here so nobody can change it in their browser)
+//  Step 5. Save the booking as a new request ("pending")
+//  Step 6. Send a notification to your phone
+//  Step 7. Tell the website it worked (it then shows the booking ID)
+// ═══════════════════════════════════════════════════════════════════════
+
+import { FieldValue } from 'firebase-admin/firestore';
+import { database, getPrices, notifyMyPhones, readForm, reply } from './_lib/helpers.js';
+import { findClash, formatINR, isValidDate, makeRef, normalizePhone, quote, rentalEnd, todayIST } from '../src/lib/booking.js';
+
+export default async function handler(req, res) {
+  if (req.method !== 'POST') return reply(res, 405, { error: 'Not allowed' });
+
+  try {
+    // Step 1. Read the form
+    const form = await readForm(req);
+    const name = String(form.name || '').trim().slice(0, 60);
+    const area = String(form.area || '').trim().slice(0, 80);
+    const phone = normalizePhone(form.phone); // "+91 98765-43210" → "9876543210"
+    const start = form.start;                 // e.g. "2026-10-20"
+    const days = Number(form.days);
+    const extraController = form.extraController === true;
+    const sms = form.sms === true;
+    const prices = await getPrices();
+
+    // Step 2. Check the details (these messages are shown to the customer)
+    if (name.length < 2) return reply(res, 400, { error: 'Please enter your name.' });
+    if (!phone) return reply(res, 400, { error: 'Please enter a valid 10-digit mobile number.' });
+    if (area.length < 2) return reply(res, 400, { error: 'Please enter your area in Vizag.' });
+    if (!isValidDate(start) || start < todayIST()) return reply(res, 400, { error: 'Please pick a valid start date.' });
+    if (!Number.isInteger(days) || days < 1 || days > prices.maxDays) {
+      return reply(res, 400, { error: `Rentals can be 1 to ${prices.maxDays} days.` });
+    }
+
+    // Step 3. Is the console free? (the end day is pickup day, so it counts too)
+    const end = rentalEnd(start, days);
+    const takenDates = await database.collection('blocks').where('end', '>=', start).get();
+    if (findClash(takenDates.docs.map((d) => d.data()), { start, end })) {
+      return reply(res, 409, { error: 'Sorry, those dates were just booked. Please pick another start date.' });
+    }
+
+    // Step 4. Price
+    const total = quote(prices, days, extraController).total;
+
+    // Step 5. Save it
+    const ref = makeRef(); // short booking ID like "PT-7K3QX"
+    await database.collection('bookings').add({
+      ref, name, phone, area, start, end, days, extraController, sms, total,
+      status: 'pending',
+      paid: false,
+      source: 'web',
+      createdAt: FieldValue.serverTimestamp(),
+    });
+
+    // Step 6. Notify your phone
+    const startDay = new Date(`${start}T00:00:00Z`).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', timeZone: 'UTC' });
+    await notifyMyPhones(
+      `New booking · ${ref}`,
+      `${name} · ${days} day${days > 1 ? 's' : ''} from ${startDay} · ${formatINR(total)} · ${area}`,
+    );
+
+    // Step 7. Done
+    return reply(res, 200, { ref, start, end, days, extraController, sms, total });
+  } catch (error) {
+    console.error(error);
+    return reply(res, 500, { error: 'Could not save your booking. Please message us on WhatsApp.' });
+  }
+}

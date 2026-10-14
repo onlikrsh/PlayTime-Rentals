@@ -1,35 +1,27 @@
-import { pricing } from '../config/pricing';
 import { Check } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '../lib/utils';
+import { priceTable } from '../lib/booking';
 
-export default function PricingCards() {
+export default function PricingCards({ pricing }) {
   
-  const sortedDiscounts = [...pricing.discounts].sort((a,b) => a.minDays - b.minDays);
+  const rows = priceTable(pricing.basePricePerDay, pricing.discounts, pricing.maxDays);
   
-  const tiers = [
-    {
-      name: `1-${sortedDiscounts.length > 0 ? sortedDiscounts[0].minDays - 1 : 6} DAYS`,
-      price: pricing.basePricePerDay,
-      popular: false,
-    },
-    ...sortedDiscounts.map((discount, i) => {
-      const nextDiscount = sortedDiscounts[i + 1];
-      const isLast = i === sortedDiscounts.length - 1;
-      const name = isLast ? `${discount.minDays}+ DAYS` : `${discount.minDays}-${nextDiscount.minDays - 1} DAYS`;
-      const label = discount.minDays === 7 ? "POPULAR" : (isLast ? "EXTENDED" : "");
-      
-      return {
-        name,
-        price: discount.pricePerDay,
-        popular: discount.minDays === 7,
-        label: label || undefined
-      };
-    })
-  ];
+  const tiers = rows.map((row, i) => {
+    const isLast = i === rows.length - 1;
+    const name = row.from === row.to ? `${row.from} DAY${row.from > 1 ? 'S' : ''}` : `${row.from}-${row.to} DAYS`;
+    const label = row.from === 7 ? "POPULAR" : (isLast && i > 0 ? "EXTENDED" : "");
+
+    return {
+      name,
+      price: row.pricePerDay,
+      popular: row.from === 7,
+      label: label || undefined
+    };
+  });
 
   return (
-    <section className="py-20 bg-background border-t border-border">
+    <section id="pricing" className="py-20 bg-background border-t border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <div className="mb-12">

@@ -7,6 +7,15 @@ import { defineConfig, globalIgnores } from 'eslint/config'
 export default defineConfig([
   globalIgnores(['dist']),
   {
+    // Vercel functions, scripts and build config run in Node
+    files: ['api/**/*.js', 'scripts/**/*.js', 'vite.config.js'],
+    languageOptions: { globals: globals.node },
+  },
+  {
+    files: ['public/sw.js'],
+    languageOptions: { globals: globals.serviceworker },
+  },
+  {
     files: ['**/*.{js,jsx}'],
     extends: [
       js.configs.recommended,
@@ -23,7 +32,8 @@ export default defineConfig([
       },
     },
     rules: {
-      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+      // JSX like <motion.div> and <Icon /> counts as using `motion` / `Icon`
+      'no-unused-vars': ['error', { varsIgnorePattern: '^([A-Z_]|motion$)', argsIgnorePattern: '^[A-Z_]' }],
     },
   },
 ])

@@ -1,4 +1,6 @@
-export const pricing = {
+// Default prices. Once prices are saved from the admin panel (/admin → Prices),
+// the saved ones are used instead and this file is only a fallback.
+export const defaultPricing = {
   basePricePerDay: 1000,
   discounts: [
     { minDays: 3, pricePerDay: 800 },
@@ -12,4 +14,11 @@ export const pricing = {
       { minDays: 15, pricePerDay: 25 },
     ],
   },
+  maxDays: 7,
 };
+
+export const withDefaults = (saved) => ({
+  ...defaultPricing,
+  ...saved,
+  extraController: { ...defaultPricing.extraController, ...saved?.extraController },
+});
