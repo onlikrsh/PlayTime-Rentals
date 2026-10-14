@@ -80,7 +80,7 @@ export default function Home() {
 
       <MemoizedHero onStartJourney={handleStartJourney} />
 
-      <section id="booking-section" className="py-24 bg-background max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section id="booking-section" className="py-24 bg-background max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 overflow-x-clip">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
 
           <motion.div

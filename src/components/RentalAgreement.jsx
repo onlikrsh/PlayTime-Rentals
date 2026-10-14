@@ -7,7 +7,6 @@ export default function RentalAgreement({ pricing }) {
   const [openId, setOpenId] = useState(null);
 
   const toggleOpen = (id) => {
-    if (navigator.vibrate) navigator.vibrate(5);
     setOpenId(openId === id ? null : id);
   };
 

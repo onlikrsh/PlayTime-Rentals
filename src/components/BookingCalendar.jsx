@@ -6,21 +6,14 @@ export default function BookingCalendar({ selectedDate, setSelectedDate, duratio
   const [currentMonth, setCurrentMonth] = useState(startOfMonth(new Date()));
   const today = startOfToday();
 
-  // Basic Helper for haptics
-  const triggerHaptic = (ms = 10) => {
-    if (navigator.vibrate) navigator.vibrate(ms);
-  }
-
   const nextMonth = () => {
     setCurrentMonth(addMonths(currentMonth, 1));
-    triggerHaptic(5);
   };
   
   const prevMonth = () => {
     // Prevent going past current real world month 
     if (!isAfter(currentMonth, startOfMonth(today))) return;
     setCurrentMonth(addMonths(currentMonth, -1));
-    triggerHaptic(5);
   };
 
   const days = eachDayOfInterval({
@@ -51,7 +44,6 @@ export default function BookingCalendar({ selectedDate, setSelectedDate, duratio
        return;
     }
     
-    triggerHaptic(10);
     setSelectedDate(day);
   };
 

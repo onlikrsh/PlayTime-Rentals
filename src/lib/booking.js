@@ -12,6 +12,17 @@ export function addDays(iso, n) {
 
 export const rentalEnd = (start, days) => addDays(start, days);
 
+// Customers always book 10:00 AM to 10:00 AM; the admin app can set other times.
+export const DEFAULT_TIME = '10:00';
+
+// '10:00' → '10 AM', '14:30' → '2:30 PM'
+export function formatTime(time = DEFAULT_TIME) {
+  const [h, m] = (time || DEFAULT_TIME).split(':').map(Number);
+  return `${h % 12 || 12}${m ? `:${String(m).padStart(2, '0')}` : ''} ${h >= 12 ? 'PM' : 'AM'}`;
+}
+
+export const isValidTime = (time) => typeof time === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(time);
+
 // Whole days from one date to another, e.g. '2026-10-20' → '2026-10-23' is 3.
 export const daysBetween = (start, end) => Math.round((Date.parse(end) - Date.parse(start)) / 86400000);
 

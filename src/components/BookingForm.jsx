@@ -7,7 +7,8 @@ import { whatsappLink, AREAS } from '../config/site';
 // The map is only downloaded when a customer taps "Pin my location"
 const LocationPicker = lazy(() => import('./LocationPicker'));
 
-const inputClass = "w-full bg-background border border-border px-4 py-3 text-sm font-medium placeholder:text-muted/40 focus:outline-none focus:border-accent transition-colors";
+// 16px text on phones stops iPhone zooming in when a field is tapped
+const inputClass = "w-full bg-background border border-border px-4 py-3 text-base sm:text-sm font-medium placeholder:text-muted/40 rounded-none appearance-none focus:outline-none focus:border-accent transition-colors";
 const labelClass = "block text-[10px] font-bold text-muted tracking-widest uppercase mb-2";
 
 function bookingMessage({ ref, name, area, location, start, days, extraController, sms, total }) {
@@ -60,7 +61,6 @@ export default function BookingForm({ start, config, onClose, onBooked }) {
 
   const submit = async (e) => {
     e.preventDefault();
-    if (navigator.vibrate) navigator.vibrate(20);
     setStatus('sending');
     setError(null);
     try {

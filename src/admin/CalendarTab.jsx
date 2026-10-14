@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { addMonths, eachDayOfInterval, endOfMonth, format, startOfMonth } from 'date-fns';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { isValidDate, quote } from '../lib/booking';
+import { DEFAULT_TIME, formatTime, isValidDate, quote } from '../lib/booking';
 import { addBlock, addBooking, removeBlock } from './data';
+import { ask, tell } from './dialogs';
 import { fmtDay, fmtShort, toISO, todayISO } from './format';
 import { Button, Empty, PageTitle, Section, inputClass, labelClass } from './ui';
 import BookingEditor from './BookingEditor';
@@ -20,8 +21,8 @@ export default function CalendarTab({ bookings, blocks, pricing }) {
   const days = eachDayOfInterval({ start: month, end: endOfMonth(month) });
   const upcomingBlocks = blocks.filter(b => !b.bookingId && b.end >= today).sort((a, b) => a.start.localeCompare(b.start));
 
-  const unblock = (block) => {
-    if (window.confirm(`Unblock ${fmtShort(block.start)} – ${fmtShort(block.end)}?`)) removeBlock(block.id);
+  const unblock = async (block) => {
+    if (await ask(`Unblock ${fmtShort(block.start)} – ${fmtShort(block.end)}?`, { confirmLabel: 'Unblock' })) removeBlock(block.id);
   };
 
   return (
@@ -72,7 +73,7 @@ export default function CalendarTab({ bookings, blocks, pricing }) {
           const booking = bookingsById[block.bookingId];
           return booking ? (
             <div key={block.id} className="glass p-4 text-sm">
-              <span className="font-bold">{booking.ref}</span> · {booking.name} · {fmtShort(booking.start)} → {fmtShort(booking.end)}
+              <span className="font-bold">{booking.ref}</span> · {booking.name} · {fmtShort(booking.start)} {formatTime(booking.startTime)} → {fmtShort(booking.end)} {formatTime(booking.endTime)}
             </div>
           ) : (
             <div key={block.id} className="glass p-4 text-sm flex justify-between items-center gap-4">
@@ -114,7 +115,7 @@ function BlockForm({ start, onDone }) {
   const save = async (e) => {
     e.preventDefault();
     if (!isValidDate(values.start) || !isValidDate(values.end) || values.end < values.start) {
-      alert('The end date must be on or after the start date.');
+      await tell('The end date must be on or after the start date.');
       return;
     }
     setBusy(true);
@@ -122,14 +123,14 @@ function BlockForm({ start, onDone }) {
       await addBlock(values.start, values.end, values.note.trim());
       onDone();
     } catch (err) {
-      alert(err.message);
+      await tell(err.message);
       setBusy(false);
     }
   };
 
   return (
     <form onSubmit={save} className="glass p-5 mb-10 space-y-4">
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 min-[400px]:grid-cols-2 gap-4 min-[400px]:gap-3">
         <div><label className={labelClass}>From</label><input type="date" required value={values.start} onChange={set('start')} className={inputClass} /></div>
         <div><label className={labelClass}>To</label><input type="date" required value={values.end} onChange={set('end')} className={inputClass} /></div>
       </div>
@@ -143,7 +144,11 @@ function AddBookingForm({ start, blocks, pricing, onDone }) {
   return (
     <div className="glass p-5 mb-10">
       <BookingEditor
-        initial={{ name: '', phone: '', area: '', start, days: 1, extraController: false, total: quote(pricing, 1, false).total }}
+        initial={{
+          name: '', phone: '', area: '',
+          start, startTime: DEFAULT_TIME, days: 1, endTime: DEFAULT_TIME,
+          extraController: false, total: quote(pricing, 1, false).total,
+        }}
         pricing={pricing}
         blocks={blocks}
         submitLabel="Save confirmed booking"

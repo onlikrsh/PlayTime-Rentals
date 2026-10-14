@@ -1,7 +1,9 @@
 // Small building blocks so the admin panel matches the website's styling.
 import { cn } from '../lib/utils';
 
-export const inputClass = "w-full bg-background border border-border px-4 py-3 text-sm font-medium text-foreground focus:outline-none focus:border-accent transition-colors";
+// 16px text on phones stops iPhone zooming in on a field; the date/time tweaks stop
+// iPhone's date and time boxes from overflowing or centring their text.
+export const inputClass = "w-full min-w-0 appearance-none bg-background border border-border px-3 sm:px-4 py-3 text-base sm:text-sm font-medium text-foreground rounded-none focus:outline-none focus:border-accent transition-colors [&::-webkit-date-and-time-value]:text-left";
 export const labelClass = "block text-[10px] font-bold text-muted tracking-widest uppercase mb-2";
 
 export function Button({ variant = 'primary', className, ...props }) {

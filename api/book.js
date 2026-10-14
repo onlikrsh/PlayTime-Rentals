@@ -11,8 +11,8 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 import { FieldValue } from 'firebase-admin/firestore';
-import { database, getPrices, notifyMyPhones, readForm, reply } from './_lib/helpers.js';
-import { findClash, formatINR, isValidDate, makeRef, normalizePhone, quote, rentalEnd, todayIST } from '../src/lib/booking.js';
+import { countNewRequests, database, getPrices, notifyMyPhones, readForm, reply } from './_lib/helpers.js';
+import { DEFAULT_TIME, findClash, formatINR, formatTime, isValidDate, makeRef, normalizePhone, quote, rentalEnd, todayIST } from '../src/lib/booking.js';
 
 // A map pin from the booking form, rounded to about 10 cm. Anything else counts as "not pinned".
 function pinnedLocation(pin) {
@@ -59,19 +59,23 @@ export default async function handler(req, res) {
 
     // Step 5. Save it
     const ref = makeRef(); // short booking ID like "PT-7K3QX"
-    await database.collection('bookings').add({
+    const saved = await database.collection('bookings').add({
       ref, name, phone, area, location, start, end, days, extraController, sms, total,
+      startTime: DEFAULT_TIME, // customers always book 10 AM to 10 AM; you can change it in the admin app
+      endTime: DEFAULT_TIME,
       status: 'pending',
       paid: false,
       source: 'web',
       createdAt: FieldValue.serverTimestamp(),
     });
 
-    // Step 6. Notify your phone
-    const startDay = new Date(`${start}T00:00:00Z`).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', timeZone: 'UTC' });
+    // Step 6. Notify your phone (tapping it opens this booking in the admin app)
+    const day = (iso) => new Date(`${iso}T00:00:00Z`).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' }).replace(',', '');
     await notifyMyPhones(
-      `New booking · ${ref}`,
-      `${name} · ${days} day${days > 1 ? 's' : ''} from ${startDay} · ${formatINR(total)} · ${area}`,
+      `🎮 New booking request · ${formatINR(total)}`,
+      `${name} · ${area}\n${day(start)}, ${formatTime(DEFAULT_TIME)} → ${day(end)} · ${days} day${days > 1 ? 's' : ''}` +
+        `${extraController ? ' · extra controller' : ''}${location ? '\n📍 Location pinned' : ''}`,
+      { url: `/admin?booking=${saved.id}`, badge: await countNewRequests().catch(() => undefined), tag: ref },
     );
 
     // Step 7. Done

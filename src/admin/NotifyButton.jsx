@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Bell, BellRing } from 'lucide-react';
 import { enablePush, isIOS, isStandalone, pushSupported, registerWorker, sendTestPush } from './push';
+import { ask, tell } from './dialogs';
 
 const initialState = () => {
   if (pushSupported()) return 'checking';
@@ -22,11 +23,11 @@ export default function NotifyButton() {
 
   const onClick = async () => {
     if (state === 'install') {
-      alert('To get booking alerts on iPhone: open this page in Safari, tap Share → Add to Home Screen, then open PT Admin from your Home Screen and tap the bell.');
+      await tell('To get booking alerts on iPhone: open this page in Safari, tap Share → Add to Home Screen, then open PT Admin from your Home Screen and tap the bell.');
       return;
     }
     if (state === 'unsupported') {
-      alert("This browser can't show notifications.");
+      await tell("This browser can't show notifications.");
       return;
     }
     setBusy(true);
@@ -34,14 +35,14 @@ export default function NotifyButton() {
       if (state === 'off') {
         await enablePush();
         setState('on');
-        alert('Booking alerts are on for this device.');
-      } else if (state === 'on' && window.confirm('Booking alerts are on. Send a test notification?')) {
+        await tell('Booking alerts are on for this device.');
+      } else if (state === 'on' && (await ask('Booking alerts are on for this device. Send a test notification?', { confirmLabel: 'Send test' }))) {
         const sent = await sendTestPush();
-        alert(sent > 0 ? 'Test sent. It should arrive in a few seconds.' : 'No devices received it. Tap the bell again after re-enabling alerts.');
+        await tell(sent > 0 ? 'Test sent. It should arrive in a few seconds.' : 'No devices received it. Tap the bell again after re-enabling alerts.');
       }
     } catch (err) {
       if (!err.noPushService) {
-        alert(err.message);
+        await tell(err.message);
         return;
       }
       // This browser can't do notifications, but we can still check the settings in Vercel.
@@ -52,7 +53,7 @@ export default function NotifyButton() {
       } catch (checkError) {
         settings = checkError.message;
       }
-      alert(`This browser can't receive notifications (common with Chromium, Helium and Brave). Turn on alerts in the admin app on your iPhone instead, or use Google Chrome or Firefox.\n\n${settings}`);
+      await tell(`This browser can't receive notifications (common with Chromium, Helium and Brave). Turn on alerts in the admin app on your iPhone instead, or use Google Chrome or Firefox.\n\n${settings}`);
     } finally {
       setBusy(false);
     }

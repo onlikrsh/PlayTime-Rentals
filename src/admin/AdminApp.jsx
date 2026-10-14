@@ -3,6 +3,7 @@ import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebas
 import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from './firebase';
 import Panel from './Panel';
+import DialogHost from './DialogHost';
 import { Button, inputClass, labelClass } from './ui';
 
 // Only accounts listed in the Firestore `admins` collection get in (see README).
@@ -22,10 +23,17 @@ export default function AdminApp() {
     }
   }), []);
 
-  if (session.status === 'admin') return <Panel />;
+  if (session.status === 'admin') {
+    return (
+      <>
+        <Panel />
+        <DialogHost />
+      </>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-background text-foreground font-sans flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background text-foreground font-sans flex items-center justify-center safe-x py-4">
       <div className="glass w-full max-w-sm p-8">
         <div className="flex items-center gap-2 mb-8">
           <img src="/logo.png" alt="" className="w-8 h-8 object-contain" />

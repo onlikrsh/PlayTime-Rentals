@@ -34,7 +34,6 @@ export default function Hero({ onStartJourney }) {
             <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
               <button 
                 onClick={() => {
-                  if (navigator.vibrate) navigator.vibrate(10);
                   onStartJourney();
                 }}
                 className="group flex items-center justify-center gap-2 bg-accent hover:bg-accent-hover text-white px-8 py-4 font-semibold transition-all"
@@ -45,7 +44,6 @@ export default function Hero({ onStartJourney }) {
               
               <button 
                 onClick={() => {
-                  if (navigator.vibrate) navigator.vibrate(10);
                   document.getElementById('game-library').scrollIntoView({ behavior: 'smooth' });
                 }}
                 className="flex items-center justify-center gap-2 border-2 border-border hover:border-foreground text-foreground px-8 py-4 font-semibold transition-colors"

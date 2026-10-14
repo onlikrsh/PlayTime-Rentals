@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { quote } from '../lib/booking';
 import { whatsappLink } from '../config/site';
+import { haptic } from '../lib/haptics';
 import { MessageCircle, Settings } from 'lucide-react';
 
 export default function Configurator({ duration, setDuration, pricing, onConfirm }) {
@@ -9,11 +10,6 @@ export default function Configurator({ duration, setDuration, pricing, onConfirm
 
   // Volume discounts for the console and the extra controller come from `pricing`
   const { controllerPerDay: currentExtraCtrlPrice, total: totalPrice } = quote(pricing, duration, extraController);
-
-  // Vibrate helper
-  const triggerHaptic = (ms = 5) => {
-    if (navigator.vibrate) navigator.vibrate(ms);
-  }
 
   return (
     <div id="accessories" className="glass p-8 border border-border h-full flex flex-col scroll-mt-24">
@@ -37,7 +33,7 @@ export default function Configurator({ duration, setDuration, pricing, onConfirm
             value={duration} 
             onChange={(e) => {
                setDuration(parseInt(e.target.value));
-               triggerHaptic();
+               haptic();
             }}
             className="w-full h-2 bg-muted/20 rounded-full appearance-none cursor-pointer accent-accent"
           />
@@ -61,7 +57,7 @@ export default function Configurator({ duration, setDuration, pricing, onConfirm
               </div>
             </div>
             <button 
-              onClick={() => { setSmsNotifications(!smsNotifications); triggerHaptic(5); }}
+              onClick={() => setSmsNotifications(!smsNotifications)}
               className={`w-12 h-6 rounded-full p-1 transition-colors duration-200 ease-in-out ${smsNotifications ? 'bg-accent' : 'bg-muted/30'}`}
             >
               <div className={`w-4 h-4 rounded-full bg-white transition-transform duration-200 ease-in-out ${smsNotifications ? 'translate-x-6' : 'translate-x-0'}`} />
@@ -81,7 +77,7 @@ export default function Configurator({ duration, setDuration, pricing, onConfirm
               </div>
             </div>
             <button 
-              onClick={() => { setExtraController(!extraController); triggerHaptic(5); }}
+              onClick={() => setExtraController(!extraController)}
               className={`w-12 h-6 rounded-full p-1 transition-colors duration-200 ease-in-out ${extraController ? 'bg-accent' : 'bg-muted/30'}`}
             >
               <div className={`w-4 h-4 rounded-full bg-white transition-transform duration-200 ease-in-out ${extraController ? 'translate-x-6' : 'translate-x-0'}`} />
@@ -103,7 +99,6 @@ export default function Configurator({ duration, setDuration, pricing, onConfirm
         <div className="flex flex-col sm:flex-row gap-4">
           <button 
             onClick={() => {
-              triggerHaptic(20);
               onConfirm({
                 duration,
                 extraController,
@@ -118,7 +113,6 @@ export default function Configurator({ duration, setDuration, pricing, onConfirm
           
           <button 
             onClick={() => {
-              triggerHaptic(20);
               window.open(whatsappLink(`Hi, I'd like to book a PS5 for ${duration} days. Total: ₹${totalPrice}.`), '_blank');
             }}
             className="flex-1 bg-[#25D366] hover:bg-[#20bd5a] text-white py-4 font-bold tracking-wider transition-colors uppercase flex items-center justify-center gap-2"

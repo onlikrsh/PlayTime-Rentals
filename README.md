@@ -41,11 +41,16 @@ Open **yourwebsite.com/admin** and sign in.
 
 | Tab | What it does |
 |---|---|
-| **Today** | Deliveries (10 AM) and pickups (10 AM – 12 PM) for today and tomorrow, whether the console is out or at home, and this month's earnings |
+| **Today** | Today's and tomorrow's deliveries and pickups with their times, whether the console is out or at home, and this month's earnings |
 | **Bookings** | New / Upcoming / Out / Past. Confirm, decline, mark delivered or returned. Tap the price to change it (discount, late fee). Mark paid. ✏️ Edit dates, days, details or price. 🗑 Delete. One tap to call or WhatsApp the customer. Search by name, phone or booking ID |
-| **Calendar** | See booked and blocked days. Block dates (servicing, personal use). Add a booking you took by phone |
+| **Calendar** | See booked and blocked days. Block dates (servicing, personal use). Add a booking you took by phone, with any start and return time |
 | **Revenue** | Revenue, profit, collected and still-to-collect for this month, last month, this year or all time. Bookings that are delivered but unpaid. Last 6 months. Add expenses (fuel, PS Plus, repairs) |
 | **Prices** | Change prices, discounts, extra controller prices and the longest rental. Includes a price calculator. Changes show on the website within a minute |
+
+**Notifications:** a new booking shows the customer, dates and price; tapping it opens that booking.
+The PT Admin icon shows a red badge with the number of requests waiting, and around 7 AM you get a
+☀️ summary of the day's deliveries and pickups (only when there's something on). Buttons give a light
+haptic tap (iPhone iOS 18 or newer).
 
 ### Put it on your iPhone (with notifications)
 
@@ -110,6 +115,7 @@ In **vercel.com**, open your project, then **Settings → Environment Variables*
 | `VITE_VAPID_PUBLIC_KEY` | Public Key from Step 2 |
 | `VAPID_PRIVATE_KEY` | Private Key from Step 2 |
 | `VAPID_SUBJECT` | `mailto:` followed by your email, e.g. `mailto:you@gmail.com` |
+| `CRON_SECRET` *(optional, recommended)* | Any long random password, e.g. from a password manager. Only Vercel's 7 AM timer can then send the morning summary |
 
 Then open **Deployments**, click **⋯** on the latest one, and choose **Redeploy**. Settings only take effect after a redeploy.
 

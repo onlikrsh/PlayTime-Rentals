@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { X } from 'lucide-react';
 import { formatINR, quote } from '../lib/booking';
 import { savePricing } from './data';
+import { tell } from './dialogs';
 import { Button, PageTitle, Section, inputClass, labelClass } from './ui';
 
 // Turns the form's text inputs back into the numbers the website uses.
@@ -82,7 +83,7 @@ export default function PricesTab({ pricing }) {
       setDraft(structuredClone(clean));
       setState('saved');
     } catch (err) {
-      alert(err.message);
+      await tell(err.message);
       setState('idle');
     }
   };
@@ -134,7 +135,7 @@ export default function PricesTab({ pricing }) {
         </div>
       </Section>
 
-      <div className="sticky bottom-[calc(5rem+env(safe-area-inset-bottom))] bg-background/95 py-4">
+      <div className="sticky bottom-[calc(3.5rem+env(safe-area-inset-bottom))] bg-background py-3 border-t border-border">
         <Button type="submit" disabled={!valid || state === 'saving'} className="w-full py-4">
           {state === 'saving' ? 'Saving…' : state === 'saved' ? '✓ Saved · live on the website within a minute' : 'Save prices'}
         </Button>

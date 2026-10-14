@@ -51,6 +51,9 @@ export async function getPrices() {
 
 // ─── 3. Phone notifications ─────────────────────────────────────────────
 // Sends a notification to every phone where you tapped the bell in the admin app.
+//   title, message: what the notification says
+//   url:   the admin page it opens when tapped (e.g. a particular booking)
+//   badge: number shown on the PT Admin app icon (new requests waiting)
 // Returns { delivered: how many phones got it, problem: what's wrong with the
 // notification settings, or null }. It never throws, so a notification problem
 // can't make a booking fail.
@@ -69,7 +72,7 @@ function setUpNotifications() {
   }
 }
 
-export async function notifyMyPhones(title, message) {
+export async function notifyMyPhones(title, message, { url = '/admin', badge, tag } = {}) {
   const problem = setUpNotifications();
   if (problem) {
     console.error(problem);
@@ -82,7 +85,7 @@ export async function notifyMyPhones(title, message) {
     for (const phone of phones.docs) {
       const { endpoint, keys } = phone.data();
       try {
-        await webpush.sendNotification({ endpoint, keys }, JSON.stringify({ title, body: message }), { TTL: 86400, urgency: 'high' });
+        await webpush.sendNotification({ endpoint, keys }, JSON.stringify({ title, body: message, url, badge, tag }), { TTL: 86400, urgency: 'high' });
         delivered++;
       } catch (error) {
         // 404 / 410 means the app was removed from that phone, so forget it.
@@ -94,6 +97,13 @@ export async function notifyMyPhones(title, message) {
     console.error('Notification failed:', error);
   }
   return { delivered, problem: null };
+}
+
+
+// How many booking requests are waiting for you (shown as the app icon badge).
+export async function countNewRequests() {
+  const snapshot = await database.collection('bookings').where('status', '==', 'pending').count().get();
+  return snapshot.data().count;
 }
 
 

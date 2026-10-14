@@ -3,6 +3,7 @@ import { addMonths, endOfMonth, format, startOfMonth } from 'date-fns';
 import { Trash2 } from 'lucide-react';
 import { formatINR } from '../lib/booking';
 import { addExpense, removeExpense, updateBooking } from './data';
+import { ask, tell } from './dialogs';
 import { fmtShort, isBooked, plural, sum, toISO, todayISO } from './format';
 import { Button, Empty, PageTitle, Section, Stat, inputClass, labelClass } from './ui';
 
@@ -52,12 +53,12 @@ export default function RevenueTab({ bookings, expenses }) {
     <>
       <PageTitle kicker="Money" title="Revenue" />
 
-      <div className="grid grid-cols-4 border border-border mb-6">
+      <div className="grid grid-cols-2 sm:grid-cols-4 border border-border mb-6">
         {PERIODS.map(p => (
           <button
             key={p.id}
             onClick={() => setPeriod(p.id)}
-            className={`py-3 text-[10px] font-bold uppercase tracking-widest transition-colors ${period === p.id ? 'bg-accent text-white' : 'text-muted hover:text-foreground'}`}
+            className={`py-3 text-[10px] font-bold uppercase tracking-wider sm:tracking-widest transition-colors ${period === p.id ? 'bg-accent text-white' : 'text-muted hover:text-foreground'}`}
           >
             {p.label}
           </button>
@@ -77,8 +78,8 @@ export default function RevenueTab({ bookings, expenses }) {
       {owed.length > 0 && (
         <Section title={`Unpaid after delivery · ${formatINR(sum(owed, 'total'))}`}>
           {owed.map(b => (
-            <div key={b.id} className="glass p-4 flex justify-between items-center gap-4 text-sm">
-              <span><span className="font-bold">{b.ref}</span> · {b.name} · {fmtShort(b.start)}</span>
+            <div key={b.id} className="glass p-4 flex justify-between items-center gap-3 text-sm">
+              <span className="min-w-0 break-words"><span className="font-bold">{b.ref}</span> · {b.name} · {fmtShort(b.start)}</span>
               <span className="flex items-center gap-3 shrink-0">
                 <span className="font-bold">{formatINR(b.total)}</span>
                 <Button variant="outline" className="py-2" onClick={() => updateBooking(b.id, { paid: true })}>Paid</Button>
@@ -92,13 +93,16 @@ export default function RevenueTab({ bookings, expenses }) {
         <div className="glass p-5 space-y-4">
           {months.map(m => (
             <div key={m.key}>
-              <div className="flex justify-between text-xs font-bold uppercase tracking-wider mb-1">
+              <div className="flex justify-between gap-3 text-xs font-bold uppercase tracking-wider mb-1">
                 <span>{m.label}</span>
-                <span>{formatINR(m.income)} <span className="text-muted font-medium">− {formatINR(m.cost)} = {formatINR(m.income - m.cost)}</span></span>
+                <span>{formatINR(m.income)}</span>
               </div>
               <div className="h-2 bg-muted/10">
                 <div className="h-full bg-accent" style={{ width: `${(m.income / maxIncome) * 100}%` }} />
               </div>
+              <p className="text-[10px] text-muted uppercase tracking-wider mt-1">
+                Expenses {formatINR(m.cost)} · Profit {formatINR(m.income - m.cost)}
+              </p>
             </div>
           ))}
         </div>
@@ -107,14 +111,14 @@ export default function RevenueTab({ bookings, expenses }) {
       <Section title={`Expenses · ${formatINR(spent)}`}>
         <ExpenseForm />
         {periodExpenses.map(e => (
-          <div key={e.id} className="glass p-4 flex justify-between items-center gap-4 text-sm">
-            <span><span className="text-muted">{fmtShort(e.date)}</span> · {e.label}</span>
+          <div key={e.id} className="glass p-4 flex justify-between items-center gap-3 text-sm">
+            <span className="min-w-0 break-words"><span className="text-muted">{fmtShort(e.date)}</span> · {e.label}</span>
             <span className="flex items-center gap-2 shrink-0">
               <span className="font-bold">{formatINR(e.amount)}</span>
               <button
-                onClick={() => window.confirm(`Delete "${e.label}"?`) && removeExpense(e.id)}
+                onClick={async () => (await ask(`Delete the expense "${e.label}"?`, { confirmLabel: 'Delete' })) && removeExpense(e.id)}
                 aria-label="Delete expense"
-                className="p-2 text-muted hover:text-accent transition-colors"
+                className="p-2.5 -m-1 text-muted hover:text-accent transition-colors"
               >
                 <Trash2 className="w-4 h-4" />
               </button>
@@ -141,18 +145,18 @@ function ExpenseForm() {
       await addExpense({ date: values.date, label: values.label.trim(), amount });
       setValues({ ...values, label: '', amount: '' });
     } catch (err) {
-      alert(err.message);
+      await tell(err.message);
     } finally {
       setBusy(false);
     }
   };
 
   return (
-    <form onSubmit={save} className="glass p-5 grid grid-cols-2 sm:grid-cols-4 gap-3 items-end">
-      <div className="col-span-2"><label className={labelClass}>What for</label><input required value={values.label} onChange={set('label')} placeholder="e.g. Fuel, PS Plus, repair" className={inputClass} /></div>
+    <form onSubmit={save} className="glass p-4 sm:p-5 grid grid-cols-1 min-[400px]:grid-cols-2 sm:grid-cols-4 gap-3 items-end">
+      <div className="min-[400px]:col-span-2"><label className={labelClass}>What for</label><input required value={values.label} onChange={set('label')} placeholder="e.g. Fuel, PS Plus, repair" className={inputClass} /></div>
       <div><label className={labelClass}>Amount (₹)</label><input required type="number" inputMode="numeric" min="1" value={values.amount} onChange={set('amount')} className={inputClass} /></div>
       <div><label className={labelClass}>Date</label><input required type="date" value={values.date} onChange={set('date')} className={inputClass} /></div>
-      <Button type="submit" disabled={busy} className="col-span-2 sm:col-span-4">Add expense</Button>
+      <Button type="submit" disabled={busy} className="min-[400px]:col-span-2 sm:col-span-4 py-4">Add expense</Button>
     </form>
   );
 }

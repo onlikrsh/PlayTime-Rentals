@@ -1,0 +1,44 @@
+/* Make the admin app feel like a native iPhone app. */
+
+html,
+body {
+  overscroll-behavior: none;          /* no rubber-band bounce */
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  touch-action: manipulation;         /* no double-tap zoom, no tap delay */
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Buttons, tabs and labels behave like app controls: no text selection or long-press menu. */
+button,
+nav,
+header,
+label,
+a {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* Keep content clear of the notch and rounded corners (landscape too). */
+.safe-x {
+  padding-left: max(1rem, env(safe-area-inset-left));
+  padding-right: max(1rem, env(safe-area-inset-right));
+}
+
+/* Pop-ups slide up from the bottom, like iOS sheets. */
+@keyframes sheet-in {
+  from { transform: translateY(24px); opacity: 0; }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+}
+.sheet-in { animation: sheet-in 0.2s ease-out; }
+.fade-in { animation: fade-in 0.15s ease-out; }
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet-in,
+  .fade-in { animation: none; }
+}

@@ -19,11 +19,6 @@ export default function ThemeToggle() {
   }, [isDark]);
 
   const toggleTheme = () => {
-    // Haptic feedback (5ms as specified)
-    if (navigator.vibrate) {
-      navigator.vibrate(5);
-    }
-
     try {
       localStorage.setItem('theme', isDark ? 'light' : 'dark');
     } catch {

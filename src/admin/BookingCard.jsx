@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Phone, MessageCircle, Check, MapPin, Pencil, Trash2 } from 'lucide-react';
-import { findClash, formatINR, mapsLink } from '../lib/booking';
+import { DEFAULT_TIME, findClash, formatINR, formatTime, mapsLink } from '../lib/booking';
 import { deleteBooking, editBooking, setStatus, updateBooking } from './data';
+import { ask, tell } from './dialogs';
 import BookingEditor from './BookingEditor';
 import { fmtDay, fmtPhone, fmtShort, isBooked, plural, timeAgo } from './format';
 import { Button, StatusPill, inputClass } from './ui';
@@ -13,47 +14,57 @@ const ACTIONS = {
   delivered: [['Returned', 'returned']],
 };
 
+const iconButton = "p-2.5 text-muted hover:text-accent transition-colors";
+
 function customerMessage(b) {
   const first = b.name.split(' ')[0];
-  if (b.status === 'confirmed') return `Hi ${first}, your PS5 booking ${b.ref} is confirmed! We'll deliver on ${fmtDay(b.start)} at 10:00 AM.`;
+  if (b.status === 'confirmed') {
+    return `Hi ${first}, your PS5 booking ${b.ref} is confirmed! We'll deliver on ${fmtDay(b.start)} at ${formatTime(b.startTime)}.`;
+  }
   return `Hi ${first}, this is PlayTime Rentals about your booking ${b.ref}.`;
 }
 
-export default function BookingCard({ booking: b, blocks, pricing }) {
+export default function BookingCard({ booking: b, blocks, pricing, highlight = false }) {
   const [busy, setBusy] = useState(false);
   const [editing, setEditing] = useState(false);
   const [amount, setAmount] = useState(null); // string while editing the total
+  const card = useRef(null);
+
+  // Opened from a notification: bring this booking into view.
+  useEffect(() => {
+    if (highlight) card.current?.scrollIntoView({ block: 'center' });
+  }, [highlight]);
 
   const run = async (action) => {
     setBusy(true);
     try {
       await action();
     } catch (err) {
-      alert(err.message);
+      await tell(err.message);
     } finally {
       setBusy(false);
     }
   };
 
-  const move = (status, question) => {
-    if (question && !window.confirm(question)) return;
+  const move = async (status, question) => {
+    if (question && !(await ask(question, { confirmLabel: 'Yes' }))) return;
     if (status === 'confirmed') {
       const clash = findClash(blocks, b, b.id);
       if (clash) {
-        alert(`Can't confirm: ${fmtShort(b.start)} – ${fmtShort(b.end)} overlaps ${clash.bookingId ? 'another booking' : 'blocked dates'} (${fmtShort(clash.start)} – ${fmtShort(clash.end)}).`);
+        await tell(`Can't confirm: ${fmtShort(b.start)} – ${fmtShort(b.end)} overlaps ${clash.bookingId ? 'another booking' : 'blocked dates'} (${fmtShort(clash.start)} – ${fmtShort(clash.end)}).`);
         return;
       }
     }
     run(() => setStatus(b, status));
   };
 
-  const remove = () => {
+  const remove = async () => {
     const warning = {
       confirmed: ' Its dates will open up on the website again.',
       delivered: ' The console is still marked as out with this customer, and its dates will open up again.',
       returned: ` Its ${formatINR(b.total)} will be removed from your revenue.`,
     }[b.status] ?? '';
-    if (!window.confirm(`Delete booking ${b.ref} (${b.name}) permanently?${warning}\n\nThis can't be undone.`)) return;
+    if (!(await ask(`Delete booking ${b.ref} (${b.name}) permanently?${warning}\n\nThis can't be undone.`, { confirmLabel: 'Delete' }))) return;
     run(() => deleteBooking(b));
   };
 
@@ -67,16 +78,22 @@ export default function BookingCard({ booking: b, blocks, pricing }) {
   };
 
   const addons = [b.extraController && 'Extra controller', b.sms && 'SMS'].filter(Boolean);
+  const actions = ACTIONS[b.status] ?? [];
 
   if (editing) {
     return (
-      <div className="glass p-5">
+      <div className="glass p-4 sm:p-5">
         <div className="flex items-center gap-2 mb-5">
           <span className="text-xs font-bold tracking-widest">EDIT {b.ref}</span>
           <StatusPill status={b.status} />
         </div>
         <BookingEditor
-          initial={{ name: b.name, phone: b.phone, area: b.area, start: b.start, days: b.days, extraController: !!b.extraController, total: b.total }}
+          initial={{
+            name: b.name, phone: b.phone, area: b.area,
+            start: b.start, startTime: b.startTime || DEFAULT_TIME,
+            days: b.days, endTime: b.endTime || DEFAULT_TIME,
+            extraController: !!b.extraController, total: b.total,
+          }}
           pricing={pricing}
           blocks={blocks}
           ignoreId={b.id}
@@ -94,23 +111,24 @@ export default function BookingCard({ booking: b, blocks, pricing }) {
   }
 
   return (
-    <div className="glass p-5">
-      <div className="flex items-center justify-between gap-3 mb-4">
-        <div className="flex items-center gap-2">
+    <div ref={card} className={`glass p-4 sm:p-5 ${highlight ? 'ring-2 ring-accent' : ''}`}>
+      <div className="flex items-center justify-between gap-3 mb-3">
+        <div className="flex items-center gap-2 min-w-0">
           <span className="text-xs font-bold tracking-widest">{b.ref}</span>
           <StatusPill status={b.status} />
         </div>
-        <span className="text-[10px] text-muted uppercase tracking-widest">{timeAgo(b.createdAt)}</span>
+        <span className="text-[10px] text-muted uppercase tracking-wider truncate">{timeAgo(b.createdAt)}</span>
       </div>
 
-      <p className="font-bold uppercase tracking-wide">{b.name}</p>
-      <p className="text-sm text-muted mb-4">{b.area} · {fmtPhone(b.phone)}</p>
+      <p className="font-bold uppercase tracking-wide break-words">{b.name}</p>
+      <p className="text-sm text-muted mb-4 break-words">{b.area} · {fmtPhone(b.phone)}</p>
 
-      <div className="flex justify-between items-end gap-4 pb-4 border-b border-border/50">
-        <div className="text-sm">
-          <p className="font-medium">{fmtDay(b.start)} → {fmtDay(b.end)}</p>
+      <div className="flex justify-between items-end gap-3 pb-4 border-b border-border/50">
+        <div className="text-sm min-w-0">
+          <p className="font-medium">{fmtDay(b.start)} · {formatTime(b.startTime)}</p>
+          <p className="font-medium">→ {fmtDay(b.end)} · {formatTime(b.endTime)}</p>
           <p className="text-[10px] text-muted uppercase tracking-wider mt-1">
-            {plural(b.days, 'day')} · 10:00 AM{addons.length > 0 && ` · ${addons.join(' · ')}`}
+            {plural(b.days, 'day')}{addons.length > 0 && ` · ${addons.join(' · ')}`}
           </p>
         </div>
 
@@ -122,14 +140,14 @@ export default function BookingCard({ booking: b, blocks, pricing }) {
           ) : (
             <form onSubmit={(e) => { e.preventDefault(); saveAmount(); }} className="flex gap-1">
               <input autoFocus type="number" inputMode="numeric" min="0" value={amount} onChange={(e) => setAmount(e.target.value)} className={`${inputClass} w-24 py-2 px-2 text-right`} />
-              <Button type="submit" disabled={busy} className="py-2 px-3"><Check className="w-4 h-4" /></Button>
+              <Button type="submit" disabled={busy} className="py-2 px-3" aria-label="Save amount"><Check className="w-4 h-4" /></Button>
             </form>
           )}
           {isBooked(b) && (
             <button
               onClick={() => run(() => updateBooking(b.id, { paid: !b.paid }))}
               disabled={busy}
-              className={`block ml-auto mt-1 text-[10px] font-bold uppercase tracking-widest transition-colors ${b.paid ? 'text-accent' : 'text-muted hover:text-foreground'}`}
+              className={`block ml-auto mt-1 py-1 text-[10px] font-bold uppercase tracking-widest transition-colors ${b.paid ? 'text-accent' : 'text-muted hover:text-foreground'}`}
             >
               {b.paid ? '✓ Paid' : 'Mark paid'}
             </button>
@@ -137,45 +155,46 @@ export default function BookingCard({ booking: b, blocks, pricing }) {
         </div>
       </div>
 
-      <div className="flex items-center justify-between gap-2 pt-4">
-        <div className="flex gap-1">
-          <a href={`tel:+91${b.phone}`} aria-label="Call" className="p-2 text-muted hover:text-accent transition-colors">
+      {/* Row 1: contact and manage. Row 2: the next step. Two rows so it fits any phone. */}
+      <div className="flex items-center justify-between pt-2 -mx-2.5">
+        <div className="flex">
+          <a href={`tel:+91${b.phone}`} aria-label="Call" className={iconButton}>
             <Phone className="w-5 h-5" />
           </a>
-          <a
-            href={`https://wa.me/91${b.phone}?text=${encodeURIComponent(customerMessage(b))}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="WhatsApp"
-            className="p-2 text-muted hover:text-[#25D366] transition-colors"
-          >
+          <a href={`https://wa.me/91${b.phone}?text=${encodeURIComponent(customerMessage(b))}`} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" className="p-2.5 text-muted hover:text-[#25D366] transition-colors">
             <MessageCircle className="w-5 h-5" />
           </a>
           {b.location && (
-            <a href={mapsLink(b.location)} target="_blank" rel="noopener noreferrer" aria-label="Open pinned location in Google Maps" className="p-2 text-muted hover:text-accent transition-colors">
+            <a href={mapsLink(b.location)} target="_blank" rel="noopener noreferrer" aria-label="Open pinned location in Google Maps" className={iconButton}>
               <MapPin className="w-5 h-5" />
             </a>
           )}
-          <button onClick={() => setEditing(true)} disabled={busy} aria-label="Edit booking" className="p-2 text-muted hover:text-accent transition-colors">
+        </div>
+        <div className="flex">
+          <button onClick={() => setEditing(true)} disabled={busy} aria-label="Edit booking" className={iconButton}>
             <Pencil className="w-5 h-5" />
           </button>
-          <button onClick={remove} disabled={busy} aria-label="Delete booking" className="p-2 text-muted hover:text-accent transition-colors">
+          <button onClick={remove} disabled={busy} aria-label="Delete booking" className={iconButton}>
             <Trash2 className="w-5 h-5" />
           </button>
         </div>
-        <div className="flex gap-2">
-          {(ACTIONS[b.status] ?? []).map(([label, status, question], i, all) => (
+      </div>
+
+      {actions.length > 0 && (
+        <div className="flex gap-2 pt-2">
+          {actions.map(([label, status, question], i) => (
             <Button
               key={status}
-              variant={i === all.length - 1 ? 'primary' : 'outline'}
+              variant={i === actions.length - 1 ? 'primary' : 'outline'}
               disabled={busy}
               onClick={() => move(status, question)}
+              className="flex-1"
             >
               {label}
             </Button>
           ))}
         </div>
-      </div>
+      )}
     </div>
   );
 }

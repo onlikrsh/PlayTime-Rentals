@@ -4,9 +4,6 @@ import { whatsappLink } from '../config/site';
 
 export default function WhatsAppButton() {
   const handleClick = () => {
-    if (navigator.vibrate) {
-      navigator.vibrate(10);
-    }
     window.open(whatsappLink("Hi, I want to rent a PS5!"), '_blank');
   };
 

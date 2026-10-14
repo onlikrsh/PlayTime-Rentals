@@ -17,12 +17,10 @@ function App() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const toggleMobileMenu = () => {
-    if (navigator.vibrate) navigator.vibrate(10);
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
   const closeMobileMenu = () => {
-    if (navigator.vibrate) navigator.vibrate(5);
     setIsMobileMenuOpen(false);
   };
 
