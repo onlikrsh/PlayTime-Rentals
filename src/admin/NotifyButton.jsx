@@ -40,7 +40,19 @@ export default function NotifyButton() {
         alert(sent > 0 ? 'Test sent. It should arrive in a few seconds.' : 'No devices received it. Tap the bell again after re-enabling alerts.');
       }
     } catch (err) {
-      alert(err.message);
+      if (!err.noPushService) {
+        alert(err.message);
+        return;
+      }
+      // This browser can't do notifications, but we can still check the settings in Vercel.
+      let settings;
+      try {
+        await sendTestPush();
+        settings = 'Good news: your notification settings in Vercel are correct ✓';
+      } catch (checkError) {
+        settings = checkError.message;
+      }
+      alert(`This browser can't receive notifications (common with Chromium, Helium and Brave). Turn on alerts in the admin app on your iPhone instead, or use Google Chrome or Firefox.\n\n${settings}`);
     } finally {
       setBusy(false);
     }

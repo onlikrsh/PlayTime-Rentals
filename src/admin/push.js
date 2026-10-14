@@ -28,10 +28,18 @@ export async function enablePush() {
     throw new Error('Notifications are turned off for this app. Allow them in your phone settings, then try again.');
   }
   const registration = await navigator.serviceWorker.ready;
-  const subscription = await registration.pushManager.subscribe({
-    userVisibleOnly: true,
-    applicationServerKey: base64UrlToBytes(VAPID_PUBLIC_KEY),
-  });
+  let subscription;
+  try {
+    subscription = await registration.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: base64UrlToBytes(VAPID_PUBLIC_KEY),
+    });
+  } catch (error) {
+    // "Registration failed - push service error": browsers like Chromium, Helium and
+    // Brave ship without Google's push service, so they can't receive notifications.
+    if (error.name === 'AbortError') throw Object.assign(new Error(error.message), { noPushService: true });
+    throw error;
+  }
   const { endpoint, keys } = subscription.toJSON();
   await setDoc(doc(db, 'pushSubs', await sha256(endpoint)), {
     endpoint, keys, device: navigator.userAgent.slice(0, 150), createdAt: serverTimestamp(),
