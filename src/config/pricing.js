@@ -1,15 +1,15 @@
 export const pricing = {
-  basePricePerDay: 900,
+  basePricePerDay: 1000,
   discounts: [
-    { minDays: 3, pricePerDay: 700 },
-    { minDays: 7, pricePerDay: 500 }
+    { minDays: 3, pricePerDay: 800 },
+    { minDays: 7, pricePerDay: 700 },
   ],
   extraController: {
     basePricePerDay: 150,
     discounts: [
       { minDays: 3, pricePerDay: 100 },
       { minDays: 7, pricePerDay: 50 },
-      { minDays: 15, pricePerDay: 25 }
-    ]
-  }
+      { minDays: 15, pricePerDay: 25 },
+    ],
+  },
 };
