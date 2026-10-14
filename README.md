@@ -42,7 +42,7 @@ Open **yourwebsite.com/admin** and sign in.
 | Tab | What it does |
 |---|---|
 | **Today** | Deliveries (10 AM) and pickups (10 AM – 12 PM) for today and tomorrow, whether the console is out or at home, and this month's earnings |
-| **Bookings** | New / Upcoming / Out / Past. Confirm, decline, mark delivered or returned. Tap the price to change it (discount, late fee). Mark paid. One tap to call or WhatsApp the customer. Search by name, phone or booking ID |
+| **Bookings** | New / Upcoming / Out / Past. Confirm, decline, mark delivered or returned. Tap the price to change it (discount, late fee). Mark paid. ✏️ Edit dates, days, details or price. 🗑 Delete. One tap to call or WhatsApp the customer. Search by name, phone or booking ID |
 | **Calendar** | See booked and blocked days. Block dates (servicing, personal use). Add a booking you took by phone |
 | **Revenue** | Revenue, profit, collected and still-to-collect for this month, last month, this year or all time. Bookings that are delivered but unpaid. Last 6 months. Add expenses (fuel, PS Plus, repairs) |
 | **Prices** | Change prices, discounts, extra controller prices and the longest rental. Includes a price calculator. Changes show on the website within a minute |

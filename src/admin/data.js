@@ -51,6 +51,24 @@ export async function setStatus(booking, status) {
 
 export const updateBooking = (id, fields) => updateDoc(doc(db, 'bookings', id), fields);
 
+// Saves changes to a booking. If it's holding dates on the website, they move with it.
+export async function editBooking(booking, changes) {
+  const batch = writeBatch(db);
+  batch.update(doc(db, 'bookings', booking.id), changes);
+  if (booking.status === 'confirmed' || booking.status === 'delivered') {
+    batch.set(doc(db, 'blocks', booking.id), { start: changes.start, end: changes.end, bookingId: booking.id });
+  }
+  await batch.commit();
+}
+
+// Removes a booking for good, and frees its dates on the website if it was holding any.
+export async function deleteBooking(booking) {
+  const batch = writeBatch(db);
+  batch.delete(doc(db, 'bookings', booking.id));
+  batch.delete(doc(db, 'blocks', booking.id));
+  await batch.commit();
+}
+
 // A booking taken by phone or in person: saved as already confirmed.
 export async function addBooking(fields) {
   const bookingDoc = doc(collection(db, 'bookings'));

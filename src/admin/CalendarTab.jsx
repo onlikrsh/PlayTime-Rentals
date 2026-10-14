@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { addMonths, eachDayOfInterval, endOfMonth, format, startOfMonth } from 'date-fns';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { findClash, formatINR, isValidDate, normalizePhone, quote, rentalEnd } from '../lib/booking';
-import { AREAS } from '../config/site';
+import { isValidDate, quote } from '../lib/booking';
 import { addBlock, addBooking, removeBlock } from './data';
 import { fmtDay, fmtShort, toISO, todayISO } from './format';
 import { Button, Empty, PageTitle, Section, inputClass, labelClass } from './ui';
+import BookingEditor from './BookingEditor';
 
 const WEEK_DAYS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
@@ -140,64 +140,18 @@ function BlockForm({ start, onDone }) {
 }
 
 function AddBookingForm({ start, blocks, pricing, onDone }) {
-  const [values, setValues] = useState({ name: '', phone: '', area: '', start, days: 1, extraController: false });
-  const [total, setTotal] = useState(() => quote(pricing, 1, false).total);
-  const [busy, setBusy] = useState(false);
-
-  // Changing days or the controller re-prices the booking; the total can still be edited by hand.
-  const change = (field, value) => {
-    const next = { ...values, [field]: value };
-    setValues(next);
-    if (field === 'days' || field === 'extraController') setTotal(quote(pricing, next.days, next.extraController).total);
-  };
-
-  const save = async (e) => {
-    e.preventDefault();
-    const phone = normalizePhone(values.phone);
-    if (!phone) return alert('Please enter a valid 10-digit mobile number.');
-    const range = { start: values.start, end: rentalEnd(values.start, values.days) };
-    const clash = findClash(blocks, range);
-    if (clash) return alert(`Those dates overlap ${clash.bookingId ? 'another booking' : 'blocked dates'} (${fmtShort(clash.start)} – ${fmtShort(clash.end)}).`);
-
-    setBusy(true);
-    try {
-      await addBooking({ ...values, name: values.name.trim(), area: values.area.trim(), phone, total: Math.round(Number(total)) || 0 });
-      onDone();
-    } catch (err) {
-      alert(err.message);
-      setBusy(false);
-    }
-  };
-
   return (
-    <form onSubmit={save} className="glass p-5 mb-10 space-y-4">
-      <div><label className={labelClass}>Name</label><input required value={values.name} onChange={(e) => change('name', e.target.value)} className={inputClass} /></div>
-      <div className="grid grid-cols-2 gap-3">
-        <div><label className={labelClass}>Mobile</label><input required type="tel" inputMode="tel" value={values.phone} onChange={(e) => change('phone', e.target.value)} className={inputClass} /></div>
-        <div>
-          <label className={labelClass}>Area</label>
-          <input required list="admin-areas" value={values.area} onChange={(e) => change('area', e.target.value)} className={inputClass} />
-          <datalist id="admin-areas">{AREAS.map(a => <option key={a} value={a} />)}</datalist>
-        </div>
-      </div>
-      <div className="grid grid-cols-2 gap-3">
-        <div><label className={labelClass}>Start (10 AM)</label><input type="date" required value={values.start} onChange={(e) => change('start', e.target.value)} className={inputClass} /></div>
-        <div>
-          <label className={labelClass}>Days</label>
-          <select value={values.days} onChange={(e) => change('days', Number(e.target.value))} className={inputClass}>
-            {Array.from({ length: pricing.maxDays }, (_, i) => i + 1).map(n => <option key={n} value={n}>{n}</option>)}
-          </select>
-        </div>
-      </div>
-      <label className="flex items-center gap-3 text-sm font-bold uppercase tracking-wide cursor-pointer">
-        <input type="checkbox" checked={values.extraController} onChange={(e) => change('extraController', e.target.checked)} className="w-4 h-4 accent-accent" />
-        Extra controller
-      </label>
-      <div>
-        <label className={labelClass}>Total (₹) · price list says {formatINR(quote(pricing, values.days, values.extraController).total)}</label>
-        <input type="number" inputMode="numeric" min="0" required value={total} onChange={(e) => setTotal(e.target.value)} className={inputClass} />
-      </div>
-      <Button type="submit" disabled={busy} className="w-full">Save confirmed booking</Button>
-    </form>
+    <div className="glass p-5 mb-10">
+      <BookingEditor
+        initial={{ name: '', phone: '', area: '', start, days: 1, extraController: false, total: quote(pricing, 1, false).total }}
+        pricing={pricing}
+        blocks={blocks}
+        submitLabel="Save confirmed booking"
+        onSave={async (values) => {
+          await addBooking(values);
+          onDone();
+        }}
+      />
+    </div>
   );
 }

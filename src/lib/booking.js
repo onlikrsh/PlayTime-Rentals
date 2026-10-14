@@ -12,6 +12,9 @@ export function addDays(iso, n) {
 
 export const rentalEnd = (start, days) => addDays(start, days);
 
+// Whole days from one date to another, e.g. '2026-10-20' → '2026-10-23' is 3.
+export const daysBetween = (start, end) => Math.round((Date.parse(end) - Date.parse(start)) / 86400000);
+
 export const isValidDate = (iso) =>
   typeof iso === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(iso) && addDays(iso, 0) === iso;
 

@@ -6,7 +6,7 @@ import { Empty, PageTitle, Section, Stat } from './ui';
 const byStart = (a, b) => a.start.localeCompare(b.start);
 const byEnd = (a, b) => a.end.localeCompare(b.end);
 
-export default function TodayTab({ bookings, blocks, onOpen }) {
+export default function TodayTab({ bookings, blocks, pricing, onOpen }) {
   const today = todayISO();
   const tomorrow = addDays(today, 1);
 
@@ -46,15 +46,15 @@ export default function TodayTab({ bookings, blocks, onOpen }) {
       </div>
 
       <Section title="Deliver · 10:00 AM">
-        {deliveries.length ? deliveries.map(b => <BookingCard key={b.id} booking={b} blocks={blocks} />) : <Empty>No deliveries today</Empty>}
+        {deliveries.length ? deliveries.map(b => <BookingCard key={b.id} booking={b} blocks={blocks} pricing={pricing} />) : <Empty>No deliveries today</Empty>}
       </Section>
 
       <Section title="Pick up · 10 AM – 12 PM">
-        {pickups.length ? pickups.map(b => <BookingCard key={b.id} booking={b} blocks={blocks} />) : <Empty>No pickups today</Empty>}
+        {pickups.length ? pickups.map(b => <BookingCard key={b.id} booking={b} blocks={blocks} pricing={pricing} />) : <Empty>No pickups today</Empty>}
       </Section>
 
       <Section title="Tomorrow">
-        {upNext.length ? upNext.map(b => <BookingCard key={b.id} booking={b} blocks={blocks} />) : <Empty>Nothing scheduled</Empty>}
+        {upNext.length ? upNext.map(b => <BookingCard key={b.id} booking={b} blocks={blocks} pricing={pricing} />) : <Empty>Nothing scheduled</Empty>}
       </Section>
     </>
   );

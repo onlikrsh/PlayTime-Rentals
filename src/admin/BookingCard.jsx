@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Phone, MessageCircle, Check } from 'lucide-react';
+import { Phone, MessageCircle, Check, Pencil, Trash2 } from 'lucide-react';
 import { findClash, formatINR } from '../lib/booking';
-import { setStatus, updateBooking } from './data';
+import { deleteBooking, editBooking, setStatus, updateBooking } from './data';
+import BookingEditor from './BookingEditor';
 import { fmtDay, fmtPhone, fmtShort, isBooked, plural, timeAgo } from './format';
 import { Button, StatusPill, inputClass } from './ui';
 
@@ -18,8 +19,9 @@ function customerMessage(b) {
   return `Hi ${first}, this is PlayTime Rentals about your booking ${b.ref}.`;
 }
 
-export default function BookingCard({ booking: b, blocks }) {
+export default function BookingCard({ booking: b, blocks, pricing }) {
   const [busy, setBusy] = useState(false);
+  const [editing, setEditing] = useState(false);
   const [amount, setAmount] = useState(null); // string while editing the total
 
   const run = async (action) => {
@@ -45,6 +47,16 @@ export default function BookingCard({ booking: b, blocks }) {
     run(() => setStatus(b, status));
   };
 
+  const remove = () => {
+    const warning = {
+      confirmed: ' Its dates will open up on the website again.',
+      delivered: ' The console is still marked as out with this customer, and its dates will open up again.',
+      returned: ` Its ${formatINR(b.total)} will be removed from your revenue.`,
+    }[b.status] ?? '';
+    if (!window.confirm(`Delete booking ${b.ref} (${b.name}) permanently?${warning}\n\nThis can't be undone.`)) return;
+    run(() => deleteBooking(b));
+  };
+
   const saveAmount = () => {
     const total = Math.round(Number(amount));
     if (!(total >= 0)) return;
@@ -55,6 +67,31 @@ export default function BookingCard({ booking: b, blocks }) {
   };
 
   const addons = [b.extraController && 'Extra controller', b.sms && 'SMS'].filter(Boolean);
+
+  if (editing) {
+    return (
+      <div className="glass p-5">
+        <div className="flex items-center gap-2 mb-5">
+          <span className="text-xs font-bold tracking-widest">EDIT {b.ref}</span>
+          <StatusPill status={b.status} />
+        </div>
+        <BookingEditor
+          initial={{ name: b.name, phone: b.phone, area: b.area, start: b.start, days: b.days, extraController: !!b.extraController, total: b.total }}
+          pricing={pricing}
+          blocks={blocks}
+          ignoreId={b.id}
+          // Only bookings holding dates on the website need to avoid overlaps
+          checkClash={b.status === 'confirmed' || b.status === 'delivered'}
+          submitLabel="Save changes"
+          onCancel={() => setEditing(false)}
+          onSave={async (changes) => {
+            await editBooking(b, changes);
+            setEditing(false);
+          }}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="glass p-5">
@@ -114,6 +151,12 @@ export default function BookingCard({ booking: b, blocks }) {
           >
             <MessageCircle className="w-5 h-5" />
           </a>
+          <button onClick={() => setEditing(true)} disabled={busy} aria-label="Edit booking" className="p-2 text-muted hover:text-accent transition-colors">
+            <Pencil className="w-5 h-5" />
+          </button>
+          <button onClick={remove} disabled={busy} aria-label="Delete booking" className="p-2 text-muted hover:text-accent transition-colors">
+            <Trash2 className="w-5 h-5" />
+          </button>
         </div>
         <div className="flex gap-2">
           {(ACTIONS[b.status] ?? []).map(([label, status, question], i, all) => (

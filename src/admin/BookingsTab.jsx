@@ -10,7 +10,7 @@ const FILTERS = [
   { id: 'past', label: 'Past', match: b => b.status === 'returned' || b.status === 'cancelled', sort: (a, b) => b.start.localeCompare(a.start) },
 ];
 
-export default function BookingsTab({ bookings, blocks }) {
+export default function BookingsTab({ bookings, blocks, pricing }) {
   const [filterId, setFilterId] = useState('new');
   const [search, setSearch] = useState('');
 
@@ -52,7 +52,7 @@ export default function BookingsTab({ bookings, blocks }) {
       </div>
 
       <div className="space-y-3">
-        {list.length ? list.map(b => <BookingCard key={b.id} booking={b} blocks={blocks} />) : <Empty>No bookings here</Empty>}
+        {list.length ? list.map(b => <BookingCard key={b.id} booking={b} blocks={blocks} pricing={pricing} />) : <Empty>No bookings here</Empty>}
       </div>
     </>
   );
