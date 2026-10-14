@@ -9,7 +9,7 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return reply(res, 405, { error: 'Not allowed' });
   if (!(await isAdmin(req))) return reply(res, 401, { error: 'Please sign in as admin.' });
 
-  const delivered = await notifyMyPhones('PlayTime Admin', 'Notifications are working 🎮');
-  if (delivered === null) return reply(res, 500, { error: 'Notification keys (VAPID_…) are not set in Vercel yet.' });
+  const { delivered, problem } = await notifyMyPhones('PlayTime Admin', 'Notifications are working 🎮');
+  if (problem) return reply(res, 500, { error: problem }); // shown to you when you tap the bell
   return reply(res, 200, { sent: delivered });
 }

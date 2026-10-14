@@ -51,13 +51,30 @@ export async function getPrices() {
 
 // ─── 3. Phone notifications ─────────────────────────────────────────────
 // Sends a notification to every phone where you tapped the bell in the admin app.
-// Returns how many phones got it (or null if the notification keys aren't set up).
-// It never stops a booking from being saved, even if sending fails.
+// Returns { delivered: how many phones got it, problem: what's wrong with the
+// notification settings, or null }. It never throws, so a notification problem
+// can't make a booking fail.
+
+// Checks the three VAPID settings from Vercel. Returns a problem description, or null if they're fine.
+function setUpNotifications() {
+  const publicKey = (process.env.VITE_VAPID_PUBLIC_KEY || '').trim();
+  const privateKey = (process.env.VAPID_PRIVATE_KEY || '').trim();
+  const subject = (process.env.VAPID_SUBJECT || '').trim();
+  if (!publicKey || !privateKey || !subject) return 'Notification settings (VAPID_…) are missing in Vercel.';
+  try {
+    webpush.setVapidDetails(subject, publicKey, privateKey);
+    return null;
+  } catch (error) {
+    return `A notification setting in Vercel is wrong: ${error.message}`;
+  }
+}
 
 export async function notifyMyPhones(title, message) {
-  const { VITE_VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT } = process.env;
-  if (!VITE_VAPID_PUBLIC_KEY || !VAPID_PRIVATE_KEY || !VAPID_SUBJECT) return null;
-  webpush.setVapidDetails(VAPID_SUBJECT, VITE_VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
+  const problem = setUpNotifications();
+  if (problem) {
+    console.error(problem);
+    return { delivered: 0, problem };
+  }
 
   let delivered = 0;
   try {
@@ -76,7 +93,7 @@ export async function notifyMyPhones(title, message) {
   } catch (error) {
     console.error('Notification failed:', error);
   }
-  return delivered;
+  return { delivered, problem: null };
 }
 
 
