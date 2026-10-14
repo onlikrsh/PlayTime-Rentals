@@ -95,7 +95,7 @@ export default function BookingEditor({ initial, pricing, blocks, ignoreId, chec
       <div className="flex gap-3 items-end">
         <div className="w-28 shrink-0"><label className={labelClass}>Days</label><input type="number" inputMode="numeric" min="1" max="60" required value={values.days} onChange={(e) => change('days', e.target.value)} className={inputClass} /></div>
         <label className="flex items-center gap-3 text-sm font-bold uppercase tracking-wide cursor-pointer py-3">
-          <input type="checkbox" checked={values.extraController} onChange={(e) => change('extraController', e.target.checked)} className="w-5 h-5 accent-accent" />
+          <input type="checkbox" switch="" checked={values.extraController} onChange={(e) => change('extraController', e.target.checked)} className="accent-accent" />
           Extra controller
         </label>
       </div>

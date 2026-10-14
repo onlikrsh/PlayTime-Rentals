@@ -71,8 +71,6 @@ export default function Panel() {
   return (
     <div className="min-h-screen bg-background text-foreground font-sans">
       <header className="sticky top-0 z-40 bg-background border-b border-border pt-[env(safe-area-inset-top)]">
-        {/* Behind the iPhone status bar (white text): keep it dark in light mode so the time stays readable */}
-        <div className="absolute inset-x-0 top-0 h-[env(safe-area-inset-top)] bg-[#0a1128] dark:hidden" />
         <div className="max-w-3xl mx-auto safe-x h-14 sm:h-16 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
             <img src="/logo.png" alt="" className="w-6 h-6 object-contain shrink-0" />

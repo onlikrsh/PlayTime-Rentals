@@ -16,6 +16,8 @@ export default function ThemeToggle() {
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDark);
+    // The admin app's iPhone status bar follows the theme
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', isDark ? '#0a1128' : '#f8fafc');
   }, [isDark]);
 
   const toggleTheme = () => {

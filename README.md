@@ -50,7 +50,7 @@ Open **yourwebsite.com/admin** and sign in.
 **Notifications:** a new booking shows the customer, dates and price; tapping it opens that booking.
 The PT Admin icon shows a red badge with the number of requests waiting, and around 7 AM you get a
 ☀️ summary of the day's deliveries and pickups (only when there's something on). Buttons give a light
-haptic tap (iPhone iOS 18 or newer).
+haptic tap on iPhone and Android.
 
 ### Put it on your iPhone (with notifications)
 
@@ -61,6 +61,10 @@ haptic tap (iPhone iOS 18 or newer).
 5. Tap the bell again and choose **Send a test notification** to check it works.
 
 You need iOS 16.4 or newer. You can do the same on more phones, for example a partner's.
+
+If PT Admin was added to your Home Screen before 14 Oct 2026, remove it (press and hold the icon, then
+**Remove App**) and add it again once. iOS only picks up the status-bar setting that keeps the top of
+the app sharp when the app is added.
 
 ---
 

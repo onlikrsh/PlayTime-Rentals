@@ -125,7 +125,7 @@ export default function PricesTab({ pricing }) {
             className="w-full h-2 bg-muted/20 rounded-full appearance-none cursor-pointer accent-accent mb-4"
           />
           <label className="flex items-center gap-3 text-sm font-bold uppercase tracking-wide cursor-pointer mb-4">
-            <input type="checkbox" checked={calc.extraController} onChange={(e) => setCalc({ ...calc, extraController: e.target.checked })} className="w-4 h-4 accent-accent" />
+            <input type="checkbox" switch="" checked={calc.extraController} onChange={(e) => setCalc({ ...calc, extraController: e.target.checked })} className="accent-accent" />
             Extra controller
           </label>
           <div className="flex justify-between items-end pt-4 border-t border-border">
