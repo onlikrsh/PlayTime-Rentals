@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Phone, MessageCircle, Check, Pencil, Trash2 } from 'lucide-react';
-import { findClash, formatINR } from '../lib/booking';
+import { Phone, MessageCircle, Check, MapPin, Pencil, Trash2 } from 'lucide-react';
+import { findClash, formatINR, mapsLink } from '../lib/booking';
 import { deleteBooking, editBooking, setStatus, updateBooking } from './data';
 import BookingEditor from './BookingEditor';
 import { fmtDay, fmtPhone, fmtShort, isBooked, plural, timeAgo } from './format';
@@ -151,6 +151,11 @@ export default function BookingCard({ booking: b, blocks, pricing }) {
           >
             <MessageCircle className="w-5 h-5" />
           </a>
+          {b.location && (
+            <a href={mapsLink(b.location)} target="_blank" rel="noopener noreferrer" aria-label="Open pinned location in Google Maps" className="p-2 text-muted hover:text-accent transition-colors">
+              <MapPin className="w-5 h-5" />
+            </a>
+          )}
           <button onClick={() => setEditing(true)} disabled={busy} aria-label="Edit booking" className="p-2 text-muted hover:text-accent transition-colors">
             <Pencil className="w-5 h-5" />
           </button>

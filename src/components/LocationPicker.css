@@ -1,0 +1,11 @@
+/* Map styles for the location picker (loaded only when the picker opens). */
+
+.pt-map.leaflet-container {
+  background: rgb(var(--bg-secondary));
+  font-family: inherit;
+}
+
+/* Map tiles are light; invert and dim them in dark mode so the map matches the site. */
+.dark .pt-map .leaflet-tile-pane {
+  filter: invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.9);
+}

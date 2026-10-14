@@ -1,13 +1,16 @@
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { format, parseISO } from 'date-fns';
-import { X, MessageCircle, Check } from 'lucide-react';
-import { formatINR, rentalEnd } from '../lib/booking';
+import { X, MessageCircle, Check, MapPin } from 'lucide-react';
+import { formatINR, mapsLink, rentalEnd } from '../lib/booking';
 import { whatsappLink, AREAS } from '../config/site';
 
-const inputClass = "w-full bg-background border border-border px-4 py-3 text-sm font-medium focus:outline-none focus:border-accent transition-colors";
+// The map is only downloaded when a customer taps "Pin my location"
+const LocationPicker = lazy(() => import('./LocationPicker'));
+
+const inputClass = "w-full bg-background border border-border px-4 py-3 text-sm font-medium placeholder:text-muted/40 focus:outline-none focus:border-accent transition-colors";
 const labelClass = "block text-[10px] font-bold text-muted tracking-widest uppercase mb-2";
 
-function bookingMessage({ ref, name, area, start, days, extraController, sms, total }) {
+function bookingMessage({ ref, name, area, location, start, days, extraController, sms, total }) {
   const addons = [extraController && "Extra Controller", sms && "SMS Notifications"].filter(Boolean);
   const day = (iso) => format(parseISO(iso), 'MMM do, yyyy');
   return (
@@ -15,6 +18,7 @@ function bookingMessage({ ref, name, area, start, days, extraController, sms, to
     (ref ? `🔖 *Booking ID:* ${ref}\n` : '') +
     `👤 *Name:* ${name}\n` +
     `📍 *Area:* ${area}\n` +
+    (location ? `🗺️ *Location:* ${mapsLink(location)}\n` : '') +
     `📅 *Duration:* ${days} Day${days > 1 ? 's' : ''}\n` +
     `⏳ *From:* ${day(start)} at 10:00 AM\n` +
     `⏳ *To:* ${day(rentalEnd(start, days))} at 10:00 AM\n` +
@@ -30,9 +34,12 @@ export default function BookingForm({ start, config, onClose, onBooked }) {
   const [status, setStatus] = useState('idle'); // idle | sending | done | failed
   const [error, setError] = useState(null);
   const [booking, setBooking] = useState(null);
+  const [location, setLocation] = useState(null); // { lat, lng } once pinned on the map
+  const [picking, setPicking] = useState(false);
 
   const request = {
     ...details,
+    location,
     start: format(start, 'yyyy-MM-dd'),
     days: config.duration,
     extraController: config.extraController,
@@ -40,10 +47,14 @@ export default function BookingForm({ start, config, onClose, onBooked }) {
   };
 
   useEffect(() => {
-    const onKey = (e) => e.key === 'Escape' && onClose();
+    const onKey = (e) => {
+      if (e.key !== 'Escape') return;
+      if (picking) setPicking(false); // Escape closes the map first
+      else onClose();
+    };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [onClose]);
+  }, [onClose, picking]);
 
   const update = (field) => (e) => setDetails({ ...details, [field]: e.target.value });
 
@@ -88,6 +99,19 @@ export default function BookingForm({ start, config, onClose, onBooked }) {
         aria-modal="true"
         aria-labelledby="booking-form-title"
       >
+        {picking && (
+          <Suspense fallback={<div className="fixed inset-0 z-[60] bg-black/60" />}>
+            <LocationPicker
+              initial={location}
+              onClose={() => setPicking(false)}
+              onConfirm={(point) => {
+                setLocation(point);
+                setPicking(false);
+              }}
+            />
+          </Suspense>
+        )}
+
         <button onClick={onClose} aria-label="Close" className="absolute top-6 right-6 p-1 text-muted hover:text-foreground transition-colors">
           <X className="w-5 h-5" />
         </button>
@@ -129,11 +153,30 @@ export default function BookingForm({ start, config, onClose, onBooked }) {
                 <input id="bf-phone" required type="tel" inputMode="tel" autoComplete="tel" placeholder="98765 43210" value={details.phone} onChange={update('phone')} className={inputClass} />
               </div>
               <div>
-                <label htmlFor="bf-area" className={labelClass}>Area in Vizag</label>
-                <input id="bf-area" required list="bf-areas" placeholder="e.g. MVP Colony" value={details.area} onChange={update('area')} className={inputClass} />
+                <label htmlFor="bf-area" className={labelClass}>Area or address in Vizag</label>
+                <input id="bf-area" required list="bf-areas" maxLength={150} autoComplete="street-address" placeholder="Type your area, e.g. MVP Colony" value={details.area} onChange={update('area')} className={`${inputClass} no-list-arrow`} />
                 <datalist id="bf-areas">
                   {AREAS.map(area => <option key={area} value={area} />)}
                 </datalist>
+                <p className="text-[10px] text-muted mt-2">Type any area, street or landmark. Suggestions are optional.</p>
+              </div>
+              <div>
+                <p className={labelClass}>Delivery location (optional)</p>
+                {location ? (
+                  <div className="flex items-center justify-between gap-4 border border-accent bg-accent/5 px-4 py-3">
+                    <span className="text-sm font-medium flex items-center gap-2"><MapPin className="w-4 h-4 text-accent" /> Location pinned</span>
+                    <button type="button" onClick={() => setPicking(true)} className="text-xs font-bold text-accent uppercase tracking-widest">Change</button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setPicking(true)}
+                    className="w-full border border-dashed border-border hover:border-accent hover:text-accent px-4 py-3 text-sm font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-2"
+                  >
+                    <MapPin className="w-4 h-4" /> Pin my location on map
+                  </button>
+                )}
+                <p className="text-[10px] text-muted mt-2">Helps us find you quickly on delivery day.</p>
               </div>
             </div>
 

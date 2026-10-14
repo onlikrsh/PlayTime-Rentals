@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 //  /api/book: runs when a customer taps "REQUEST BOOKING" on the website.
 //
-//  Step 1. Read the customer's details from the form
+//  Step 1. Read the customer's details from the form (and their map pin, if any)
 //  Step 2. Check the details make sense
 //  Step 3. Check the console is free on those dates
 //  Step 4. Work out the price (done here so nobody can change it in their browser)
@@ -14,6 +14,14 @@ import { FieldValue } from 'firebase-admin/firestore';
 import { database, getPrices, notifyMyPhones, readForm, reply } from './_lib/helpers.js';
 import { findClash, formatINR, isValidDate, makeRef, normalizePhone, quote, rentalEnd, todayIST } from '../src/lib/booking.js';
 
+// A map pin from the booking form, rounded to about 10 cm. Anything else counts as "not pinned".
+function pinnedLocation(pin) {
+  const lat = Number(pin?.lat);
+  const lng = Number(pin?.lng);
+  if (!Number.isFinite(lat) || !Number.isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) return null;
+  return { lat: Math.round(lat * 1e6) / 1e6, lng: Math.round(lng * 1e6) / 1e6 };
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return reply(res, 405, { error: 'Not allowed' });
 
@@ -21,7 +29,8 @@ export default async function handler(req, res) {
     // Step 1. Read the form
     const form = await readForm(req);
     const name = String(form.name || '').trim().slice(0, 60);
-    const area = String(form.area || '').trim().slice(0, 80);
+    const area = String(form.area || '').trim().slice(0, 150);
+    const location = pinnedLocation(form.location); // { lat, lng } or null if not pinned
     const phone = normalizePhone(form.phone); // "+91 98765-43210" → "9876543210"
     const start = form.start;                 // e.g. "2026-10-20"
     const days = Number(form.days);
@@ -51,7 +60,7 @@ export default async function handler(req, res) {
     // Step 5. Save it
     const ref = makeRef(); // short booking ID like "PT-7K3QX"
     await database.collection('bookings').add({
-      ref, name, phone, area, start, end, days, extraController, sms, total,
+      ref, name, phone, area, location, start, end, days, extraController, sms, total,
       status: 'pending',
       paid: false,
       source: 'web',

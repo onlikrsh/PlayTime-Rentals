@@ -51,6 +51,9 @@ export function priceTable(base, discounts, maxDays) {
   }));
 }
 
+// Opens the pinned spot in Google Maps (app on phones), e.g. for directions on delivery day.
+export const mapsLink = ({ lat, lng }) => `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+
 export const formatINR = (n) => `₹${Number(n).toLocaleString('en-IN')}`;
 
 // "98765 43210", "+91 98765-43210", "098765 43210" → "9876543210"; null if not an Indian mobile number.

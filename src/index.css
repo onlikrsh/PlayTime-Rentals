@@ -34,4 +34,9 @@
   .glass {
     @apply bg-card/95 border border-border;
   }
+
+  /* Text fields with suggestions: hide the dropdown arrow so they don't look like a fixed list */
+  .no-list-arrow::-webkit-calendar-picker-indicator {
+    display: none !important;
+  }
 }
